@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111318">
+<meta name="application-name" content="Tier Studio">
+<title>Tier Studio — Personal Tier List Maker</title>
+<meta name="description" content="A private, local tier list editor with rank rows, image cropping, a personal library and export.">
+<style>
+:root{
+  --bg:#0c111a;--surface:#141c28;--surface2:#1a2432;--surface3:#233044;
+  --line:#2c3a4d;--line-soft:#202b3a;--text:#f2f6fc;--muted:#a6b5c9;
+  --accent:#92a8ff;--accent2:#71d9ed;--danger:#ec7f8b;--good:#73d6ad;
+  --radius:13px;--shadow:0 18px 50px rgba(0,0,0,.30);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{background:radial-gradient(ellipse at 12% -10%,rgba(110,145,255,.16),transparent 38%),radial-gradient(ellipse at 92% 0%,rgba(86,214,231,.10),transparent 32%),var(--bg)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.topbar{height:72px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,54px);position:sticky;top:0;z-index:30;background:rgba(13,15,19,.9);backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:.13em;font-size:15px;cursor:pointer;user-select:none}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#9bafff,#67d8e8);display:grid;place-items:center;color:#101a2a;font-weight:950;letter-spacing:-.08em;box-shadow:0 5px 18px rgba(108,163,255,.25)}
+.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.18em;font-weight:650;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:9px}
+.btn{border:1px solid var(--line);color:var(--text);background:var(--surface2);padding:10px 14px;border-radius:9px;font-weight:650;font-size:13px;transition:.16s ease;display:inline-flex;align-items:center;gap:8px;justify-content:center;white-space:nowrap}
+.btn:hover{border-color:#606a79;background:#252b35;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(115deg,#9aabff 0%,#77c8f0 52%,#70e0d2 100%);border-color:transparent;color:#101a2a;box-shadow:0 5px 18px rgba(112,171,255,.16)}
+.btn.primary:hover{background:linear-gradient(115deg,#b2bdff 0%,#8dd9fa 52%,#91eee1 100%);border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.danger{color:#ff9b9e;border-color:#5b3037;background:#24191d}
+.btn.small{padding:6px 9px;font-size:11px;border-radius:7px}
+.btn.icon{width:32px;height:32px;padding:0;font-size:15px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+main{max-width:1540px;margin:0 auto;padding:36px clamp(16px,4vw,54px) 70px}
+.view{display:none}.view.active{display:block}
+.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--accent2);font-weight:800}
+h1{font-size:clamp(30px,4vw,44px);letter-spacing:-.045em;margin:9px 0 8px;line-height:1.04}
+.subtitle{color:var(--muted);font-size:14px;line-height:1.6;max-width:650px;margin:0}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:28px}
+.library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:17px}
+.library-card{border:1px solid var(--line);background:linear-gradient(150deg,#1a1e25,#13161b);border-radius:14px;overflow:hidden;cursor:pointer;transition:.18s;min-width:0}
+.library-card:hover{transform:translateY(-3px);border-color:#555f6d;box-shadow:var(--shadow)}
+.library-thumb{aspect-ratio:16/9;background:#090b0f;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+.library-thumb img{width:100%;height:100%;object-fit:contain}
+.library-placeholder{color:#626c79;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.library-info{padding:14px 15px 13px}.library-title{font-size:15px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.library-meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between;gap:10px}
+.card-actions{display:flex;gap:7px;padding:0 15px 14px}.card-actions .btn{flex:1}
+.empty-state{border:1px dashed #3a414d;border-radius:16px;background:rgba(255,255,255,.015);padding:58px 24px;text-align:center;max-width:760px;margin:20px auto}
+.empty-icon{width:64px;height:64px;margin:0 auto 18px;border:1px solid #454d58;border-radius:18px;display:grid;place-items:center;font-size:26px;color:var(--accent2);background:#1a1d24}
+.empty-state h2{margin:0 0 8px;font-size:22px}.empty-state p{color:var(--muted);font-size:13px;line-height:1.65;max-width:420px;margin:0 auto 20px}
+.editor-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.editor-title-wrap{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}.back-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:18px}
+.title-input{font-size:23px;font-weight:800;letter-spacing:-.03em;color:var(--text);background:transparent;border:0;border-bottom:1px solid transparent;outline:none;width:min(480px,100%);padding:6px 2px}
+.title-input:focus{border-color:var(--accent)}.editor-actions{display:flex;gap:8px;flex-wrap:wrap}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.stage-col{min-width:0}.board-shell{border:0;border-radius:0;background:transparent;padding:0;overflow:auto;box-shadow:none}
+.board{margin:0 auto;min-width:600px;width:max-content;border:1px solid #000;background:#1a1b16;position:relative;overflow:hidden}
+.board-bg{position:absolute;inset:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:var(--bg-opacity,1);pointer-events:none}
+.board-content{position:relative;z-index:1}
+.board-title{display:none}
+.tier-row{display:flex;min-height:var(--row-height,80px);border-bottom:1px solid #000;position:relative;background:rgba(26,27,22,.08)}.tier-row:first-child{border-top:0}.tier-row:last-child{border-bottom:0}
+.tier-row.row-drop-over{outline:2px dashed var(--accent);outline-offset:-3px;background:rgba(146,168,255,.10)}
+.row-grip{cursor:grab!important;letter-spacing:-2px;font-size:14px!important}
+.tier-label{width:100px;min-width:100px;display:flex;align-items:center;justify-content:center;padding:4px;position:relative;border-right:1px solid #000;color:#161616;font:400 14px/1.1 Arial,Helvetica,sans-serif;text-align:center;overflow-wrap:anywhere}
+.tier-label input{width:100%;min-width:0;text-align:center;background:transparent;border:0;outline:0;color:inherit;font:400 14px/1.1 Arial,Helvetica,sans-serif;padding:4px 2px;text-shadow:none}
+.tier-items{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:0;padding:0;min-height:80px;transition:background .12s}
+.tier-items.drag-over,.pool-items.drag-over{background:rgba(146,168,255,.14);outline:2px dashed var(--accent);outline-offset:-3px}
+.tier-tools{position:absolute;z-index:4;left:4px;top:4px;display:flex;gap:2px;opacity:0;transition:.14s;transform:translateY(-2px)}
+.tier-row:hover .tier-tools,.tier-tools:focus-within{opacity:1;transform:none}
+.tier-tools button{height:21px;min-width:21px;border:1px solid rgba(0,0,0,.3);border-radius:5px;background:rgba(15,17,21,.82);color:white;font-size:11px;padding:0 5px}
+.tier-tools button:hover{background:#333b47}
+.item-tile{width:var(--tile-size,80px);flex:0 0 var(--tile-size,80px);border:0;background:transparent;position:relative;cursor:grab;user-select:none;overflow:hidden;box-shadow:none}
+.item-tile:active{cursor:grabbing}.item-tile.dragging{opacity:.35}.item-image-wrap{width:100%;height:var(--tile-size,80px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#1a1b16;position:relative}
+.item-image-wrap img{width:100%;height:100%;display:block;object-fit:var(--image-fit,cover);pointer-events:none}
+.item-caption{height:21px;background:rgba(8,10,13,.92);color:#f0f2f4;font-size:10px;line-height:21px;padding:0 4px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile-actions{position:absolute;top:3px;right:3px;display:flex;gap:3px;opacity:0;transition:.12s}.item-tile:hover .tile-actions{opacity:1}
+.tile-actions button{width:21px;height:21px;padding:0;border:0;border-radius:5px;background:rgba(7,9,12,.85);color:white;font-size:12px}
+.tile-actions button:hover{background:#8e383d}
+.tile-actions{z-index:3}
+.tile-move-btn{display:none}
+.pool-panel{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#151920;padding:14px}
+.pool-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.pool-title{font-size:12px;font-weight:800;letter-spacing:.06em}.pool-sub{font-size:11px;color:var(--muted)}
+.pool-items{min-height:108px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:7px;padding:8px;border:1px dashed #3d4653;border-radius:8px;background:#101319}
+.pool-empty{color:#77818e;font-size:12px;padding:30px 12px;text-align:center;width:100%}
+.sidebar{border:1px solid var(--line);border-radius:14px;background:linear-gradient(160deg,#191d24,#13161c);padding:16px;position:sticky;top:88px;max-height:calc(100vh - 105px);overflow:auto}
+.panel-section{padding-bottom:15px;margin-bottom:15px;border-bottom:1px solid var(--line-soft)}.panel-section:last-child{border:0;padding-bottom:0;margin:0}
+.panel-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#c0c7d1;font-weight:800;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.control{margin:11px 0}.control label{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#c1c8d1;font-size:12px;margin-bottom:7px}.control label span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=color]{width:38px;height:29px;border:1px solid #48515e;background:transparent;border-radius:6px;padding:2px;cursor:pointer}
+input[type=text],input[type=number],select{color:var(--text);background:#101319;border:1px solid #39414d;border-radius:7px;padding:8px 9px;font-size:12px;min-width:0}
+select{width:100%}.inline-control{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.checkline{display:flex;align-items:center;gap:8px;font-size:12px;color:#c4cbd4;margin:10px 0}.checkline input{accent-color:var(--accent)}
+.upload-box{width:100%;min-width:0;min-height:112px;border:1px dashed #536783;background:linear-gradient(145deg,rgba(117,150,255,.10),rgba(92,209,225,.055));border-radius:11px;padding:13px 10px;text-align:center;cursor:pointer;transition:.16s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;overflow:hidden}.upload-box:hover{border-color:#91b2ff;background:linear-gradient(145deg,rgba(117,150,255,.18),rgba(92,209,225,.10));transform:translateY(-1px)}.upload-box strong{font-size:12px;display:block;line-height:1.3;max-width:100%;white-space:normal;overflow-wrap:anywhere}.upload-box span{font-size:10px;color:var(--muted);display:block;margin:0;line-height:1.35;max-width:100%;white-space:normal;overflow-wrap:anywhere}.upload-glyph{width:29px;height:29px;border-radius:9px;display:grid!important;place-items:center;background:linear-gradient(135deg,#9aabff,#70d9df);color:#111b2a!important;font-size:20px!important;font-weight:700;line-height:1!important;margin:0!important}.upload-box-compact{min-height:82px;padding:10px}.upload-box-compact .upload-glyph{width:24px;height:24px;font-size:17px!important}
+.hidden-input{display:none!important}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}.setting-note{font-size:10px;color:#85909e;line-height:1.5;margin-top:6px}
+
+.crop-modal{width:min(940px,96vw);max-height:92vh;overflow:auto}
+.crop-editor{display:flex;flex-direction:column;gap:12px}
+.crop-stage-frame{min-height:180px;max-height:62vh;display:flex;align-items:center;justify-content:center;padding:12px;background:#0c121c;border:1px solid #2c3a4d;border-radius:10px;overflow:auto}
+.crop-stage{position:relative;flex:none;line-height:0;user-select:none;touch-action:none;box-shadow:0 8px 25px rgba(0,0,0,.3)}
+.crop-source{display:block;max-width:none;max-height:none;pointer-events:none;user-select:none}
+.crop-selection{position:absolute;border:2px solid #d9f4ff;box-shadow:0 0 0 9999px rgba(0,0,0,.48),0 0 0 1px rgba(62,153,255,.8);cursor:move;touch-action:none}
+.crop-handle{position:absolute;right:-10px;bottom:-10px;width:20px;height:20px;border-radius:50%;background:#e9f7ff;border:2px solid #378fe8;box-shadow:0 1px 7px rgba(0,0,0,.45);cursor:nwse-resize;touch-action:none}
+.crop-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.crop-controls label{font-size:12px;color:#c4d1e0;display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.crop-help{font-size:11px;color:var(--muted);line-height:1.5}
+.viewer-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}.viewer-canvas-wrap{background:#090b0f;border:1px solid var(--line);border-radius:14px;padding:16px;overflow:auto;text-align:center}.viewer-canvas-wrap canvas{max-width:100%;height:auto;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.viewer-meta{color:var(--muted);font-size:12px;margin-top:14px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:80;padding:11px 16px;background:#242b34;border:1px solid #4d5968;border-radius:10px;box-shadow:var(--shadow);font-size:12px;color:#f4f6f8;transition:.22s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}.modal-backdrop.show{display:flex}.modal{width:min(460px,100%);background:#1a1e26;border:1px solid #3b4451;border-radius:15px;padding:22px;box-shadow:var(--shadow)}.modal h3{margin:0 0 8px;font-size:19px}.modal p{color:var(--muted);font-size:12px;line-height:1.6}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.presentation .topbar,.presentation .sidebar,.presentation .editor-head .editor-actions,.presentation .pool-panel,.presentation .board-shell{display:none!important}.presentation main{padding-top:12px}.presentation .workspace{display:block}.presentation .board-shell{display:block!important;border:0;padding:0;box-shadow:none;background:transparent}.presentation .board{margin:auto}
+.footer-note{color:#65707e;font-size:10px;text-align:center;margin-top:24px;line-height:1.6}
+.presentation-exit{display:none;position:fixed;top:14px;right:14px;z-index:70;background:#202630;color:#f4f6f8;border:1px solid #566170;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:700;box-shadow:var(--shadow)}
+.presentation .presentation-exit{display:block}
+@media(max-width:1050px){.workspace{grid-template-columns:minmax(0,1fr) 260px}.sidebar{top:84px}}
+@media(max-width:820px){main{padding-top:24px}.workspace{grid-template-columns:1fr}.sidebar{position:static;max-height:none;display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel-section{margin:0;border:0;padding:0}.editor-head{align-items:flex-start}.editor-actions{width:100%}.editor-actions .btn{flex:1}}
+@media(max-width:560px){.tier-tools{opacity:1;transform:none}.tile-actions{opacity:1}.topbar{height:62px;padding:0 14px}.brand{font-size:12px}.top-actions .btn:not(.primary){display:none}main{padding:22px 12px 45px}.sidebar{grid-template-columns:1fr}.title-input{font-size:19px}.tier-label{width:100px;min-width:100px;font-size:14px}.board-shell{padding:7px}.pool-panel{padding:10px}}
+
+/* ===== Refinements: crop zoom, row controls, reset buttons and mobile ===== */
+.range-reset-line{display:flex;justify-content:flex-end;margin-top:6px}
+.reset-setting-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid rgba(236,127,139,.38);border-radius:7px;background:rgba(236,127,139,.08);color:#f19aa4;font-size:10px;font-weight:700;line-height:1.2;transition:.15s}
+.reset-setting-btn span{font-size:15px;line-height:10px}
+.reset-setting-btn:hover{background:rgba(236,127,139,.17);border-color:rgba(236,127,139,.75);color:#ffc1c7}
+
+/* Row management controls stay inside the colored label, never over the first image. */
+.tier-tools{left:50%;top:50%;display:grid;grid-template-columns:repeat(3,22px);gap:3px;width:max-content;padding:4px;background:rgba(12,15,20,.91);border:1px solid rgba(255,255,255,.22);border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.24);transform:translate(-50%,-50%)}
+.tier-row:hover .tier-tools,.tier-tools:focus-within{opacity:1;transform:translate(-50%,-50%)}
+.tier-tools button{width:22px;height:22px;min-width:22px;padding:0;display:grid;place-items:center;font-size:12px}
+.crop-modal{width:min(1080px,98vw);max-height:94vh;max-height:94dvh;overflow:hidden;display:flex;flex-direction:column;padding:18px}
+.crop-modal #modalContent{min-height:0;overflow:visible}
+.crop-modal .modal-actions{flex-wrap:wrap;margin-top:12px}
+.crop-editor{min-width:0;gap:10px}
+.crop-stage-frame{height:clamp(220px,56vh,560px);min-height:220px;max-height:560px;display:block;overflow:auto;padding:18px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#60718e #111824}
+.crop-stage{margin:0 auto;touch-action:pan-x pan-y}
+.crop-selection{touch-action:none}
+.crop-handle{right:-9px;bottom:-9px;width:22px;height:22px;touch-action:none}
+.crop-zoom-controls{display:grid;grid-template-columns:auto minmax(180px,1fr);gap:14px;align-items:end}
+.crop-zoom-buttons{display:flex;align-items:center;gap:6px}
+.crop-zoom-buttons .btn{min-width:38px;min-height:36px;padding:7px 10px}
+.crop-zoom-buttons .btn.zoom-fit{min-width:auto;font-size:11px}
+.crop-zoom-slider label{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#c4d1e0;font-size:12px;margin-bottom:5px}
+.crop-zoom-slider input{width:100%}
+.crop-size-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+.crop-size-control label{font-size:12px;color:#c4d1e0;display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.crop-size-control input{width:100%}
+.crop-zoom-note{font-size:10px;color:var(--muted);align-self:center}
+
+@media(max-width:1050px){
+  .workspace{grid-template-columns:minmax(0,1fr) 290px}
+}
+@media(max-width:820px){
+  main{padding-top:22px}
+  .workspace{grid-template-columns:minmax(0,1fr)}
+  .stage-col{min-width:0}
+  .sidebar{position:static;top:auto;max-height:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;overflow:visible}
+  .panel-section{min-width:0;margin:0;border:0;padding:0 0 12px;border-bottom:1px solid var(--line-soft)}
+  .editor-head{align-items:flex-start}
+  .editor-actions{width:100%}
+  .editor-actions .btn{flex:1 1 auto}
+  .board-shell{max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .crop-modal{width:calc(100vw - 20px);max-height:94dvh;padding:14px}
+  .crop-stage-frame{height:48dvh;min-height:190px;max-height:52dvh}
+}
+@media(max-width:560px){
+  .topbar{height:auto;min-height:60px;padding:9px 12px;gap:8px;flex-wrap:wrap}
+  .brand{font-size:12px;gap:8px}
+  .brand-mark{width:30px;height:30px}
+  .brand small{display:none}
+  .top-actions{gap:6px;margin-left:auto}
+  .top-actions .btn{padding:8px 9px;font-size:11px}
+  .top-actions .btn:not(.primary){display:inline-flex}
+  main{padding:17px 10px 36px}
+  .section-head{align-items:flex-start;flex-direction:column;gap:12px;margin-bottom:18px}
+  .section-head .btn{width:100%}
+  .editor-title-wrap{min-width:0;width:100%;flex:1}
+  .title-input{font-size:18px;min-width:0}
+  .editor-head{gap:10px;margin-bottom:14px}
+  .editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .editor-actions .btn{width:100%;min-width:0;padding:9px 7px;font-size:11px;white-space:normal}
+  .workspace{gap:12px}
+  .board-shell{padding:0 0 5px;max-width:calc(100vw - 20px)}
+  .board{margin:0;min-width:600px}
+  .tier-tools{opacity:1;left:50%;top:auto;bottom:3px;transform:translateX(-50%);grid-template-columns:repeat(3,21px);gap:2px;padding:3px}
+  .tier-row:hover .tier-tools,.tier-tools:focus-within{opacity:1;transform:translateX(-50%)}
+  .tier-tools button{width:21px;height:21px;min-width:21px;font-size:11px}
+  .tier-label{align-items:flex-start;padding:7px 4px 52px}
+  .tier-label input{margin-top:0;align-self:flex-start}
+  .pool-panel{padding:10px;margin-top:10px}
+  .pool-head{align-items:flex-start}
+  .pool-items{min-height:88px;padding:6px;gap:5px}
+  .sidebar{display:flex;flex-direction:column;gap:0;padding:13px}
+  .panel-section{width:100%;padding:0 0 13px;margin:0 0 13px}
+  .panel-section:last-child{margin-bottom:0}
+  .upload-box{min-height:96px}
+  .crop-modal{width:calc(100vw - 12px);max-height:96dvh;padding:11px;border-radius:12px}
+  .crop-modal h3{font-size:17px}
+  .crop-stage-frame{height:42dvh;min-height:170px;max-height:46dvh;padding:15px}
+  .crop-zoom-controls{grid-template-columns:1fr;gap:7px}
+  .crop-zoom-buttons .btn{min-height:40px;min-width:42px}
+  .crop-zoom-buttons .btn.zoom-fit{flex:1}
+  .crop-size-control{grid-template-columns:1fr;gap:3px}
+  .crop-modal .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .crop-modal .modal-actions .btn.primary{grid-column:1/-1;grid-row:1}
+  .crop-modal .modal-actions .btn{min-height:40px}
+  .tile-actions{opacity:1;display:grid;grid-template-columns:repeat(2,23px);gap:3px}
+  .tile-actions button{width:23px;height:23px;min-width:23px;font-size:13px}
+  .tile-move-btn{display:block}
+  .tier-label input[type=color]{opacity:1!important;top:4px!important;right:4px!important;left:auto!important;bottom:auto!important;transform:none!important;width:20px!important;height:17px!important}
+  .viewer-head{align-items:flex-start;flex-direction:column}
+  .viewer-head .top-actions{width:100%;flex-wrap:wrap;margin:0}
+  .viewer-head .top-actions .btn{flex:1}
+  .viewer-canvas-wrap{padding:7px}
+}
+@media(hover:none){
+  .tier-tools{opacity:1}
+  .tile-actions{opacity:1;display:grid;grid-template-columns:repeat(2,23px);gap:3px}
+  .tile-move-btn{display:block}
+  .tile-actions button{width:23px;height:23px;min-width:23px}
+  .tier-label input[type=color]{opacity:1!important;top:4px!important;right:4px!important;left:auto!important;bottom:auto!important;transform:none!important;width:20px!important;height:17px!important}
+}
+
+
+
+/* ===== Tier row controls: side palette and editable multiline labels ===== */
+.board-shell{padding:0 0 0 118px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.board{overflow:visible;margin:0 auto}
+.tier-row{overflow:visible}
+.tier-label{flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 5px!important;overflow:visible;min-height:var(--row-height,80px)}
+.tier-label-text{display:flex;align-items:center;justify-content:center;width:100%;min-height:0;text-align:center;white-space:pre-line;overflow-wrap:anywhere;word-break:normal;line-height:1.1;color:#161616;user-select:text;pointer-events:auto}
+.tier-tools{position:absolute;z-index:40;left:-116px;right:auto;top:50%;bottom:auto;display:grid;grid-template-columns:repeat(4,25px);grid-template-rows:repeat(2,25px);gap:3px;width:max-content;padding:5px;background:rgba(12,16,24,.96);border:1px solid rgba(160,184,220,.34);border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transform:translateY(-50%);transition:opacity .14s ease,transform .14s ease}
+.tier-row:hover .tier-tools,.tier-tools:focus-within{opacity:1;pointer-events:auto;transform:translateY(-50%)}
+.tier-tools button,.tier-tools .color-tool{position:relative;width:25px;height:25px;min-width:25px;padding:0;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:#263346;color:#f5f8ff;font-size:13px;line-height:1;cursor:pointer;transition:background .12s,border-color .12s}
+.tier-tools button:hover,.tier-tools .color-tool:hover{background:#3b506e;border-color:rgba(150,194,255,.65)}
+.tier-tools button:disabled{opacity:.3;cursor:not-allowed}
+.tier-tools .row-delete{color:#ff9da6;background:#40242c}
+.tier-tools .row-clear{color:#ffd7a0}
+.tier-tools .color-tool{overflow:hidden;background:linear-gradient(135deg,#29364a,#1a2534)}
+.tier-tools .color-tool span{pointer-events:none;font-size:14px}
+.tier-tools .color-tool input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;padding:0;border:0;cursor:pointer}
+.tier-label-text{cursor:default}
+.crop-modal .modal-actions .btn{touch-action:manipulation}
+@media(hover:none){
+  .tier-tools{opacity:1;pointer-events:auto;left:-116px;top:50%;bottom:auto;transform:translateY(-50%)}
+  .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:translateY(-50%)}
+}
+@media(max-width:820px){
+  .board-shell{padding-left:118px;max-width:100%;overflow-x:auto;overflow-y:hidden}
+  .tier-tools{grid-template-columns:repeat(4,26px);grid-template-rows:repeat(2,26px);gap:3px;padding:5px;left:-120px}
+  .tier-tools button,.tier-tools .color-tool{width:26px;height:26px;min-width:26px;font-size:14px}
+  .tier-label{align-items:center!important;padding:5px!important}
+}
+@media(max-width:560px){
+  .board-shell{padding:0 0 5px 122px;max-width:calc(100vw - 20px)}
+  .board{margin:0;min-width:600px}
+  .tier-tools{left:-123px;grid-template-columns:repeat(4,25px);grid-template-rows:repeat(2,25px);gap:3px;padding:5px}
+  .tier-tools button,.tier-tools .color-tool{width:25px;height:25px;min-width:25px}
+  .tier-label{width:100px;min-width:100px;align-items:center!important;padding:5px!important}
+  .tier-label-text{max-width:100%;}
+}
+.presentation .tier-tools{display:none!important}
+
+
+/* Keep the side control palette reachable even while the board is horizontally scrolled. */
+.board-shell{padding-left:132px!important;}
+.tier-tools{position:sticky!important;left:-132px!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 121px!important;width:121px!important;height:65px!important;margin-left:-132px!important;margin-right:11px!important;align-self:center!important;transform:none!important;z-index:50!important;}
+.tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
+@media(max-width:820px){
+  .board-shell{padding-left:136px!important;}
+  .tier-tools{left:-136px!important;flex-basis:125px!important;width:125px!important;height:67px!important;margin-left:-136px!important;margin-right:11px!important;transform:none!important;}
+  .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
+}
+@media(max-width:560px){
+  .board-shell{padding-left:136px!important;}
+  .tier-tools{left:-136px!important;flex-basis:125px!important;width:125px!important;height:67px!important;margin-left:-136px!important;margin-right:11px!important;transform:none!important;}
+  .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
+}
+
+
+/* Freeze the rank label beside its action palette when the board is scrolled horizontally. */
+.tier-label{position:sticky!important;left:1px!important;z-index:10!important;flex:0 0 100px!important;}
+
+
+/* ===== V4: stable row toolbar hover bridge, history controls and presentation lock ===== */
+.tier-row{z-index:1}
+.tier-row:hover{z-index:3}
+/* Invisible bridge fills the small gap between the row and its side toolbar.
+   Since it belongs to the row, the row stays hovered while the pointer crosses the gap. */
+.tier-row::before{content:"";position:absolute;left:-148px;top:0;width:148px;height:100%;z-index:39;background:transparent;pointer-events:auto}
+.tier-tools{z-index:50!important}
+.history-btn{min-width:42px}
+.history-btn:disabled{opacity:.34;cursor:not-allowed;filter:saturate(.4)}
+.presentation #boardContent,.presentation #boardContent *{pointer-events:none!important;user-select:none!important;-webkit-user-select:none!important}
+.presentation .tier-tools,.presentation .tile-actions{display:none!important;opacity:0!important;pointer-events:none!important}
+.presentation .item-tile{cursor:default!important}
+.presentation #board{cursor:default!important}
+@media(max-width:560px){
+  .tier-row::before{left:-148px;width:148px}
+  .history-btn{padding-left:7px!important;padding-right:7px!important}
+}
+
+
+
+/* ===== V5: final interaction and mobile usability fixes ===== */
+.history-actions{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.history-actions .history-btn{min-width:42px}
+.mobile-board-controls{display:none}
+.tier-tools{transition:opacity .14s ease,visibility .14s ease;}
+.rank-tools-suspended .tier-tools{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.rank-tools-suspended .tier-row::before{pointer-events:none!important;}
+/* The grip is for desktop mouse drag only. On touch screens the adjacent up/down buttons are reliable and move exactly one row. */
+
+/* Modal selection: dragging text outside the dialog must not dismiss it. */
+.modal-backdrop{touch-action:pan-y;}
+.modal{user-select:text;-webkit-user-select:text;}
+.crop-modal{height:min(94dvh,900px);}
+.crop-modal h3{flex:0 0 auto;}
+.crop-modal #modalContent{flex:1 1 auto;min-height:0;overflow-y:auto!important;overscroll-behavior:contain;padding-right:3px;}
+.crop-modal .modal-actions{flex:0 0 auto;position:relative;padding-top:10px;margin-top:8px;border-top:1px solid var(--line-soft);background:#1a1e26;}
+.crop-transform-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.crop-transform-controls .btn{min-width:0;white-space:normal;}
+.mobile-fit-mode,.presentation-fit-mode{position:relative!important;padding:0!important;overflow:hidden!important;}
+.mobile-fit-mode .tier-tools,.mobile-fit-mode .tile-actions,.mobile-fit-mode .tier-row::before{display:none!important;}
+.mobile-fit-mode #boardContent,.mobile-fit-mode #boardContent *{pointer-events:none!important;user-select:none!important;-webkit-user-select:none!important;}
+.presentation .board-shell{padding:0!important;}
+.presentation main{padding-top:56px!important;}
+.presentation .presentation-exit{top:8px;right:8px;}
+
+@media(max-width:820px){
+  .mobile-board-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 9px;padding:0 1px;}
+  .mobile-board-controls .btn{min-height:36px;padding:8px 10px;font-size:11px;}
+  .mobile-board-note{flex:1 1 100%;font-size:10px;line-height:1.4;color:var(--muted);}
+  .history-actions{display:flex;gap:6px;width:100%;grid-column:1/-1;}
+  .history-actions .btn{flex:1 1 0;width:auto!important;min-width:0;padding:9px 6px!important;font-size:11px!important;}
+  .row-grip{display:none!important;}
+  .tier-tools{grid-template-columns:repeat(4,26px)!important;grid-template-rows:repeat(2,26px)!important;}
+  .tier-tools button,.tier-tools .color-tool{min-width:26px!important;width:26px!important;height:26px!important;}
+  .crop-modal{height:min(95dvh,900px);max-height:95dvh;width:calc(100vw - 12px);padding:11px;}
+  .crop-modal #modalContent{overflow-y:auto!important;min-height:0;}
+  .crop-stage-frame{height:34dvh;min-height:160px;max-height:38dvh;}
+  .crop-transform-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:2px 0 4px;}
+  .crop-transform-controls .btn{min-height:42px;padding:9px 7px;font-size:11px;}
+  .crop-modal .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:9px;}
+  .crop-modal .modal-actions .btn{min-height:42px;margin:0;}
+  .presentation main{padding-top:58px!important;}
+  .presentation .presentation-exit{top:7px;right:7px;max-width:calc(100vw - 14px);padding:9px 11px;font-size:11px;}
+}
+@media(max-width:560px){
+  .editor-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .history-actions{grid-column:1/-1;}
+  .crop-modal #modalContent{padding-bottom:8px;}
+  .crop-stage-frame{height:32dvh;min-height:150px;max-height:36dvh;padding:12px;}
+  .crop-transform-controls{gap:8px;}
+  .crop-modal .modal-actions{gap:8px;}
+}
+@media(hover:none){
+  .tier-tools{opacity:1!important;visibility:visible;}
+  .rank-tools-suspended .tier-tools{opacity:1!important;visibility:visible!important;}
+}
+
+
+/* Presentation is a true viewing mode: hide editor-only overview controls and title navigation. */
+.presentation .mobile-board-controls{display:none!important;}
+.presentation .editor-title-wrap{pointer-events:none!important;}
+.presentation .editor-title-wrap .back-btn{display:none!important;}
+.presentation .title-input{pointer-events:none!important;caret-color:transparent!important;border:0!important;}
+
+
+/* Deterministic desktop rank dragging with a clear insertion target. */
+.row-grip{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab!important;}
+body.row-drag-active{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important;}
+body.row-drag-active .row-grip{cursor:grabbing!important;}
+.tier-row.row-drop-over{outline:2px dashed #8eb6ff!important;outline-offset:-3px!important;background:rgba(126,164,226,.13)!important;}
+
+
+/* V6: transient bottom notifications removed; errors remain available in DevTools console. */
+#toast{display:none!important}
+
+/* ===== V7 bilingual UI and library backup ===== */
+.lang-toggle{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:66px;height:38px;padding:0 9px;border:1px solid #40516a;border-radius:9px;background:linear-gradient(145deg,#1e2b3d,#151e2b);color:#c5d4eb;font-size:11px;font-weight:850;letter-spacing:.04em;cursor:pointer;transition:.16s;white-space:nowrap}
+.lang-toggle:hover{border-color:#91b4ff;background:#283a53;transform:translateY(-1px)}
+.lang-toggle .lang-current{color:#a9c2ff;text-decoration:underline;text-underline-offset:3px}
+.lang-toggle .lang-arrow{color:#71839c;font-size:12px}
+.library-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.library-head-actions .btn{min-height:38px}
+@media(max-width:700px){.library-head-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px}.library-head-actions #createFromLibrary{grid-column:1/-1}.library-head-actions .btn{width:100%;min-width:0;padding:9px 7px;font-size:11px;white-space:normal}}
+@media(max-width:560px){.lang-toggle{min-width:62px;height:34px;padding:0 7px;font-size:10px}.top-actions{gap:6px}.viewer-head .top-actions .lang-toggle{flex:0 0 auto}}
+
+
+/* Bilingual layout safeguards */
+.btn{white-space:normal;line-height:1.25}
+.top-actions .btn{white-space:nowrap}
+.panel-title{gap:8px}
+.library-head-actions{min-width:0}
+.library-head-actions .btn{overflow-wrap:anywhere}
+@media(max-width:560px){.library-head-actions .btn{font-size:10px;line-height:1.25}.viewer-head .top-actions{gap:6px}.viewer-head .top-actions .btn{white-space:normal}}
+
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <div class="brand" id="brandHome"><div class="brand-mark">T</div><div>TIER STUDIO<small>PERSONAL TIER LIST MAKER</small></div></div>
+  <div class="top-actions">
+    <button class="btn ghost" id="navLibrary">▦ My Library</button>
+    <button class="btn primary" id="navCreate">＋ Create Tier List</button>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language" title="Switch language"> <span class="lang-current">EN</span><span class="lang-arrow">↔</span><span>RU</span></button>
+  </div>
+</header>
+<main>
+  <section class="view active" id="libraryView">
+    <div class="section-head">
+      <div><div class="eyebrow">Личное пространство</div><h1>Моя библиотека</h1><p class="subtitle">Тир-листы хранятся только в этом браузере. У каждого посетителя своя отдельная библиотека; для переноса используй резервную копию JSON.</p></div>
+      <div class="library-head-actions">
+        <button class="btn" id="backupLibraryBtn" type="button">⇩ Backup Library</button>
+        <button class="btn" id="restoreLibraryBtn" type="button">⇧ Restore Library</button>
+        <input type="file" id="libraryBackupImport" class="hidden-input" accept="application/json,.json">
+        <button class="btn primary" id="createFromLibrary">＋ New Tier List</button>
+      </div>
+    </div>
+    <div id="draftNotice" style="display:none;margin:0 0 18px"></div>
+    <div class="library-grid" id="libraryGrid"></div>
+    <div class="empty-state" id="libraryEmpty" style="display:none">
+      <div class="empty-icon">▤</div><h2>Здесь пока пусто</h2>
+      <p>Создай первый тир-лист, добавь изображения, распредели их по рангам и сохрани результат в своей библиотеке.</p>
+      <button class="btn primary" id="emptyCreate">＋ Создать первый тир-лист</button>
+    </div>
+    <div class="footer-note">Работает локально • Без регистрации • Изображения и проекты не загружаются на сервер</div>
+  </section>
+
+  <section class="view" id="editorView">
+    <div class="editor-head">
+      <div class="editor-title-wrap"><button class="back-btn" id="editorBack" title="Назад в библиотеку">←</button><input class="title-input" id="boardTitle" value="Мой тир-лист" maxlength="100" aria-label="Название тир-листа"></div>
+      <div class="editor-actions">
+        <button class="btn ghost" id="resetPlacements" title="Вернуть все изображения в нижнюю область">↺ Сбросить раскладку</button>
+        <div class="history-actions" role="group" aria-label="История действий">
+          <button class="btn history-btn" id="undoAction" type="button" title="Отменить последнее действие" aria-label="Отменить последнее действие" disabled>↶ Отменить</button>
+          <button class="btn history-btn" id="redoAction" type="button" title="Повторить отменённое действие" aria-label="Повторить отменённое действие" disabled>↷ Повторить</button>
+        </div>
+        <button class="btn ghost" id="exportProject">⇩ Проект JSON</button>
+        <button class="btn" id="downloadMenuBtn">⇩ Скачать</button>
+        <button class="btn primary" id="saveBoardBtn">Сохранить</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div class="stage-col">
+        <div class="mobile-board-controls" id="mobileBoardControls" aria-label="Масштаб тир-листа">
+          <button class="btn small" id="boardFitBtn" type="button" aria-pressed="false" title="Показать весь тир-лист целиком">▣ Обзор целиком</button>
+          <button class="btn small" id="boardActualBtn" type="button" aria-pressed="true" title="Вернуться к обычному размеру для редактирования">↗ 100% · Редактировать</button>
+          <span class="mobile-board-note" id="mobileBoardNote">На телефоне можно посмотреть всю доску или вернуться к удобному размеру редактирования.</span>
+        </div>
+        <div class="board-shell" id="boardShell">
+          <div class="board" id="board">
+            <div class="board-bg" id="boardBg"></div>
+            <div class="board-content" id="boardContent"></div>
+          </div>
+        </div>
+        <div class="pool-panel">
+          <div class="pool-head"><div><div class="pool-title">НЕРАСПРЕДЕЛЁННЫЕ ИЗОБРАЖЕНИЯ</div><div class="pool-sub">Перетащи изображения в нужный ранг</div></div><div class="pool-sub" id="poolCount">0 изображений</div></div>
+          <div class="pool-items" id="poolItems" data-drop="pool"><div class="pool-empty">Добавь изображения кнопкой справа или перетащи файлы сюда</div></div>
+        </div>
+      </div>
+      <aside class="sidebar">
+        <div class="panel-section">
+          <div class="panel-title">Изображения <span id="imageCountLabel" style="color:var(--muted);font-size:10px">0</span></div>
+          <label class="upload-box" for="imageUpload"><span class="upload-glyph">＋</span><strong>Добавить изображения</strong><span>PNG, JPG, WEBP • можно выбрать сразу несколько</span></label>
+          <input class="hidden-input" type="file" id="imageUpload" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
+          <div class="setting-note">Оригиналы сохраняются без уменьшения качества. Кадрирование можно отдельно настроить для каждой фотографии.</div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Вид изображений</div>
+          <div class="control"><label for="imageFit">Отображение по умолчанию</label><select id="imageFit"><option value="cover">Квадрат — обрезать по краям</option><option value="contain">Полностью — вписать целиком</option></select><div class="setting-note">Для точного выбора области нажми ✂ на самой фотографии.</div></div>
+          <div class="control"><label for="tileSize">Размер плитки <span id="tileSizeVal">80 px</span></label><input type="range" id="tileSize" min="40" max="176" step="4" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetTileSize" title="Вернуть размер плитки по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <label class="checkline"><input type="checkbox" id="showItemLabels"> Показывать подписи под фото</label>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Размер тир-листа</div>
+          <div class="control"><label for="boardWidth">Ширина <span id="boardWidthVal">960 px</span></label><input type="range" id="boardWidth" min="600" max="1500" step="8" value="960"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetBoardWidth" title="Вернуть ширину по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <div class="control"><label for="rowHeight">Высота строки <span id="rowHeightVal">80 px</span></label><input type="range" id="rowHeight" min="60" max="240" step="1" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetRowHeight" title="Вернуть высоту строки по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <div class="setting-note">Строка автоматически увеличивается, если в ней не помещаются все изображения. Фон автоматически масштабируется под всю доску при изменении её размеров.</div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Фон</div>
+          <div class="inline-control"><label style="margin:0;font-size:12px;color:#c1c8d1">Цвет фона</label><input type="color" id="backgroundColor" value="#1a1b16"></div>
+          <label class="upload-box upload-box-compact" for="backgroundUpload" style="margin-top:9px"><span class="upload-glyph">＋</span><strong>Загрузить фон</strong><span>Изображение на задний план</span></label>
+          <input class="hidden-input" type="file" id="backgroundUpload" accept="image/png,image/jpeg,image/webp">
+          <div id="backgroundImageActions" style="display:none;margin-top:7px"><button class="btn small danger" id="removeBackground">Удалить изображение фона</button><div class="control"><label for="backgroundOpacity">Прозрачность фона <span id="backgroundOpacityVal">22%</span></label><input type="range" id="backgroundOpacity" min="5" max="100" value="22"></div></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Ранги</div>
+          <button class="btn small" id="addTierBtn" style="width:100%">＋ Добавить ранг</button>
+          <div class="setting-note">Название, цвет и порядок каждого ранга можно изменить прямо на тир-листе.</div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-title">Файлы и резервная копия</div>
+          <button class="btn small" id="importProjectBtn" style="width:100%">＋ Импорт проекта JSON</button>
+          <input type="file" id="projectImport" class="hidden-input" accept="application/json,.json">
+          <div class="setting-note">JSON-файл содержит настройки, ранги и загруженные изображения. Его можно перенести на другой компьютер.</div>
+        </div>
+      </aside>
+    </div>
+    <div class="footer-note">Подсказка: двойной щелчок по изображению меняет название. Перетаскивай плитки между рангами; кнопка ✂ на плитке открывает квадратную обрезку — рамку можно двигать и менять её размер.</div>
+  </section>
+
+  <section class="view" id="viewerView">
+    <div class="viewer-head">
+      <div><div class="eyebrow">Сохранённый тир-лист</div><h1 id="viewerTitle" style="font-size:30px;margin:7px 0 0">Мой тир-лист</h1><div class="viewer-meta" id="viewerMeta"></div></div>
+      <div class="top-actions"><button class="btn ghost" id="viewerBack">← Library</button><button class="btn" id="viewerDownload">⇩ Download</button><button class="btn primary" id="viewerEdit">✎ Edit</button><button class="lang-toggle" id="viewerLangToggle" type="button" aria-label="Switch language" title="Switch language"><span class="lang-current">EN</span><span class="lang-arrow">↔</span><span>RU</span></button></div>
+    </div>
+    <div class="viewer-canvas-wrap"><canvas id="viewerCanvas"></canvas></div>
+  </section>
+</main>
+<button class="presentation-exit" id="exitPresentation">↙ Вернуться к редактированию</button>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modalBox"><h3 id="modalTitle">Скачать тир-лист</h3><div id="modalContent"></div><div class="modal-actions" id="modalActions"></div></div></div>
+<script>
+(() => {
+'use strict';
+
+const DEFAULT_ROWS = [
+  {label:'SSS',color:'#ff7f7f'},
+  {label:'SS',color:'#ffbf7f'},
+  {label:'S',color:'#ffdf80'},
+  {label:'A',color:'#feff7f'},
+  {label:'B',color:'#beff7f'},
+  {label:'C',color:'#feff7f'},
+  {label:'D',color:'#bf7ebe'},
+  {label:'E',color:'#7eff80'},
+  {label:'F',color:'#f7f7f7'}
+];
+const DB_NAME = 'TierStudioLocalDB';
+const DB_VERSION = 1;
+let db = null;
+let state = null;
+let currentScreen = 'library';
+let currentBoardId = null;
+let currentViewerState = null;
+let dragItemId = null;
+let dragRowId = null;
+let rowPointerDrag = null;
+let toastTimer = null;
+let autosaveTimer = null;
+let lastExportState = null;
+
+// Undo/Redo history. Image data URLs are shared by reference in snapshots,
+// so history does not duplicate the original image bytes on every action.
+let undoStack = [];
+let redoStack = [];
+let historyLastState = null;
+let historyGroupOpen = false;
+let historyGroupTimer = null;
+const HISTORY_LIMIT = 45;
+const HISTORY_GROUP_MS = 650;
+
+const $ = id => document.getElementById(id);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
+const I18N = {
+  en: {
+    pageTitle:'Tier Studio — Personal Tier List Maker',
+    pageDescription:'A private, local tier list editor with rank rows, image cropping, a personal library and export.',
+    navLibrary:'▦ My Library', navCreate:'＋ Create Tier List', switchLanguage:'Switch language: English / Russian',
+    libraryEyebrow:'PERSONAL WORKSPACE', libraryTitle:'My Library',
+    librarySubtitle:'Your tier lists are stored in this browser. Open, edit and download them whenever you need.',
+    createNew:'＋ New Tier List', backupLibrary:'⇩ Back Up Library', restoreLibrary:'⇧ Restore Library',
+    emptyTitle:'Nothing here yet', emptyText:'Create your first tier list, add images, arrange them into ranks and save it to your library.',
+    createFirst:'＋ Create Your First Tier List', libraryFooter:'Stored in this browser • No account required • Back up your library to keep a copy outside the browser.',
+    defaultBoardTitle:'My tier list', backToLibrary:'Back to library', resetLayout:'↺ Reset Layout', resetLayoutTitle:'Move all images back to the unranked area',
+    historyActions:'Edit history', undo:'↶ Undo', undoTitle:'Undo the last action', redo:'↷ Redo', redoTitle:'Redo the undone action',
+    projectJson:'⇩ Project JSON', download:'⇩ Download', save:'Save', saveChanges:'Save Changes',
+    boardScale:'Tier list view scale', overview:'▣ Fit Entire Board', overviewTitle:'Fit the entire tier list on screen',
+    editAt100:'↗ 100% · Edit', editAt100Title:'Return to the normal editing size',
+    overviewHint:'Fit the whole board on screen, or return to the comfortable editing size.',
+    unranked:'UNRANKED IMAGES', unrankedHint:'Drag images into the rank where they belong',
+    addImages:'Add Images', imageFormats:'PNG, JPG, WEBP • You can select multiple files',
+    imageOriginals:'Original images are kept at full quality. You can crop each image individually.',
+    images:'Images', imageCount:'images', imageAppearance:'Image Appearance', imageFit:'Default image display',
+    cropSquare:'Square — crop the edges', fitWhole:'Contain — show the entire image',
+    exactCropHint:'For a precise crop, use the ✂ button on an image.', tileSize:'Tile size', reset:'Reset', resetTile:'Reset tile size to default',
+    showCaptions:'Show captions under images', boardSize:'Tier List Size', width:'Width', rowHeight:'Row height',
+    resetWidth:'Reset board width to default', resetRowHeight:'Reset row height to default',
+    rowAutoHeight:'A row grows automatically when its images do not fit. The background scales to the full board when its dimensions change.',
+    background:'Background', backgroundColor:'Background color', uploadBackground:'Upload Background', backgroundImage:'Background image',
+    removeBackground:'Remove background image', backgroundOpacity:'Background opacity',
+    ranks:'Ranks', addRank:'＋ Add Rank', ranksHint:'Edit each rank’s name, color and order directly on the board.',
+    filesBackup:'Files & Backup', importProject:'＋ Import Project JSON',
+    jsonHint:'A JSON project contains settings, ranks and uploaded images. Use it to move a tier list to another device.',
+    editorHint:'Tip: double-click an image to rename it. Drag tiles between ranks; use ✂ to crop an image and adjust the square selection.',
+    savedTierList:'Saved Tier List', library:'← Library', edit:'✎ Edit', downloadTier:'⇩ Download',
+    presentationExit:'↙ Back to Editing', downloadTitle:'Download Tier List', format:'File format',
+    pngBest:'PNG — best quality', jpgSmall:'JPG — smaller file', webpCompact:'WEBP — compact format',
+    resolution:'Resolution', normal:'Standard (1×)', high:'High (2×)', maximum:'Maximum (3×)',
+    exportNote:'The export includes ranked images only. Images in the unranked area are not included.',
+    cancel:'Cancel', downloadAction:'Download', saveAction:'Save', deleteAction:'Delete',
+    editRankName:'Rank name', rankNameHint:'The name wraps automatically and shrinks if needed.',
+    moveImage:'Move Image', moveImageHint:'Choose the rank where this image should go.', unrankedOption:'Unranked images', moveAction:'Move',
+    confirmDeleteTier:'Delete this tier list?', confirmDeleteImage:'Delete this image?', confirmDeleteRank:'Delete rank?',
+    defaultTitleMissing:'Untitled tier list', noName:'No name',
+    cropTitle:'Crop Image', cropHelp:'Rotate or flip the image, then move and resize the square selection. The original image remains unchanged.',
+    cropPreview:'Crop preview', resizeSelection:'Resize selection', rotateLeft:'Rotate left 90°', rotateRight:'Rotate right 90°',
+    flipHorizontal:'Flip horizontally', flipVertical:'Flip vertically', zoomOut:'Zoom out', zoomIn:'Zoom in', fitImage:'Fit image',
+    imageZoom:'Image zoom', selectionSize:'Square selection size', squareArea:'Square selection', apply:'Apply', resetCrop:'Reset Crop',
+    cropSelection:'Selection: {size} × {size} source px', cropResetDone:'Crop reset. The window stays open so you can continue.',
+    cropResetApplied:'Crop reset', imageUpdated:'Image updated', waitImage:'Wait for the image to finish loading.',
+    cropOpenError:'Could not open this image for cropping.',
+    tierCount:'tiers', tierOne:'tier', imageOne:'image', imagesMany:'images',
+    open:'Open', rename:'Rename', remove:'Remove',
+    emptyPool:'All uploaded images are ranked, or there are no images yet. Drop files here or use “Add Images”.',
+    rankDragHint:'Drag this rank with your mouse. On touch screens, use the ↑ and ↓ buttons.',
+    rankRenameHint:'Edit rank name', rankColorHint:'Change rank color', addRankBelow:'Add rank below', moveRankUp:'Move rank up', moveRankDown:'Move rank down',
+    clearRank:'Move all images in this rank to the unranked area', deleteRank:'Delete rank',
+    tileDragHint:'Drag to move. Double-click to rename.', cropImage:'Choose image crop', renameImage:'Rename image', moveImageOther:'Move image to another rank',
+    rankDeleted:'The rank “{name}” will be deleted. Its images will return to the unranked area.',
+    imageDeleted:'“{name}” will be removed from this tier list.',
+    newRankName:'New', newRankAdded:'New rank added', movedToUnranked:'Moved to unranked: {count}',
+    rankNameUpdated:'Rank name updated', imageMoved:'Image moved', imagesAdded:'Images added: {count}',
+    backgroundSet:'Background set', settingReset:'Setting reset', listSaved:'Tier list saved to your library',
+    saveError:'Could not save. Browser storage may be full.', readLibraryError:'Could not read the library',
+    storageError:'The browser did not allow local storage. Open this page in Chrome, Edge, Safari or Firefox.',
+    projectBackupDownloaded:'Project backup downloaded', projectImported:'Project imported. Save it to your library.',
+    projectImportError:'Could not open this project JSON file', unsupportedProject:'Unsupported project file',
+    tierNotFound:'Tier list not found', imageExported:'Image downloaded', exportError:'Could not create the image.',
+    noRanksLeft:'At least one rank must remain.', confirmResetLayout:'Reset the layout?', resetLayoutText:'All images will return to the unranked area. Ranks and images will be kept.',
+    draftTitle:'There is an unfinished draft', continueDraft:'Continue', deleteDraft:'Delete draft', draftDeleted:'Draft deleted',
+    restoreDraftDate:'Unfinished draft',
+    backupAllTitle:'Back Up Your Library', backupAllHint:'Create one JSON file containing all saved tier lists, images, settings and the current draft. Keep it somewhere safe.',
+    backupLibraryDone:'Library backup downloaded', backupLibraryError:'Could not create the library backup.',
+    restoreAllTitle:'Restore Library Backup', restoreAllHint:'The backup will be merged into this browser’s library. A tier list with the same ID will be replaced by the backup copy. A saved draft is restored only if this browser has no current draft.',
+    restoreAllConfirm:'Restore {count} tier lists from this backup?', restoreLibraryDone:'Library restored: {count} tier lists.',
+    restoreLibraryError:'Could not restore this library backup. The file may be invalid or storage may be full.',
+    invalidBackup:'This is not a valid Tier Studio library backup.',
+    backupButtonHint:'Download one backup with every saved tier list, its images, settings and the current draft.',
+    restoreButtonHint:'Restore tier lists from a previously downloaded library backup.',
+    rowsMeta:'{rows} tiers · {images} images', changedMeta:'Updated {date}',
+    moveRankPointerHint:'Drag the rank by this handle. Drop it above or below another rank.',
+    presentationToggle:'▣ Presentation', languageEnglish:'English', languageRussian:'Russian'
+  },
+  ru: {
+    pageTitle:'Tier Studio — личный конструктор тир-листов',
+    pageDescription:'Локальный редактор тир-листов с ранговыми строками, обрезкой изображений, библиотекой и экспортом.',
+    navLibrary:'▦ Моя библиотека', navCreate:'＋ Создать тир-лист', switchLanguage:'Сменить язык: английский / русский',
+    libraryEyebrow:'ЛИЧНОЕ ПРОСТРАНСТВО', libraryTitle:'Моя библиотека',
+    librarySubtitle:'Все твои тир-листы хранятся в этом браузере. Открывай, редактируй и скачивай их в любое время.',
+    createNew:'＋ Новый тир-лист', backupLibrary:'⇩ Резервная копия библиотеки', restoreLibrary:'⇧ Восстановить библиотеку',
+    emptyTitle:'Здесь пока пусто', emptyText:'Создай первый тир-лист, добавь изображения, распредели их по рангам и сохрани результат в своей библиотеке.',
+    createFirst:'＋ Создать первый тир-лист', libraryFooter:'Хранится в этом браузере • Без регистрации • Создавай резервную копию, чтобы сохранить её вне браузера.',
+    defaultBoardTitle:'Мой тир-лист', backToLibrary:'Назад в библиотеку', resetLayout:'↺ Сбросить раскладку', resetLayoutTitle:'Вернуть все изображения в нижнюю область',
+    historyActions:'История действий', undo:'↶ Отменить', undoTitle:'Отменить последнее действие', redo:'↷ Повторить', redoTitle:'Повторить отменённое действие',
+    projectJson:'⇩ Проект JSON', download:'⇩ Скачать', save:'Сохранить', saveChanges:'Сохранить изменения',
+    boardScale:'Масштаб тир-листа', overview:'▣ Обзор целиком', overviewTitle:'Показать весь тир-лист целиком',
+    editAt100:'↗ 100% · Редактировать', editAt100Title:'Вернуться к обычному размеру для редактирования',
+    overviewHint:'Можно посмотреть всю доску или вернуться к удобному размеру редактирования.',
+    unranked:'НЕРАСПРЕДЕЛЁННЫЕ ИЗОБРАЖЕНИЯ', unrankedHint:'Перетащи изображения в нужный ранг',
+    addImages:'Добавить изображения', imageFormats:'PNG, JPG, WEBP • Можно выбрать сразу несколько файлов',
+    imageOriginals:'Оригиналы сохраняются без уменьшения качества. Каждую фотографию можно обрезать отдельно.',
+    images:'Изображения', imageCount:'изображений', imageAppearance:'Вид изображений', imageFit:'Отображение по умолчанию',
+    cropSquare:'Квадрат — обрезать по краям', fitWhole:'Полностью — вписать целиком',
+    exactCropHint:'Для точной обрезки нажми ✂ на самой фотографии.', tileSize:'Размер плитки', reset:'Сбросить', resetTile:'Вернуть размер плитки по умолчанию',
+    showCaptions:'Показывать подписи под фото', boardSize:'Размер тир-листа', width:'Ширина', rowHeight:'Высота строки',
+    resetWidth:'Вернуть ширину по умолчанию', resetRowHeight:'Вернуть высоту строки по умолчанию',
+    rowAutoHeight:'Строка автоматически увеличивается, если изображения не помещаются. Фон масштабируется под всю доску при изменении её размеров.',
+    background:'Фон', backgroundColor:'Цвет фона', uploadBackground:'Загрузить фон', backgroundImage:'Изображение на заднем плане',
+    removeBackground:'Удалить изображение фона', backgroundOpacity:'Прозрачность фона',
+    ranks:'Ранги', addRank:'＋ Добавить ранг', ranksHint:'Название, цвет и порядок каждого ранга можно изменить прямо на тир-листе.',
+    filesBackup:'Файлы и резервная копия', importProject:'＋ Импорт проекта JSON',
+    jsonHint:'JSON-файл содержит настройки, ранги и загруженные изображения. Его можно перенести на другое устройство.',
+    editorHint:'Подсказка: двойной щелчок по изображению меняет название. Перетаскивай плитки между рангами; кнопка ✂ открывает квадратную обрезку.',
+    savedTierList:'Сохранённый тир-лист', library:'← Библиотека', edit:'✎ Редактировать', downloadTier:'⇩ Скачать',
+    presentationExit:'↙ Вернуться к редактированию', downloadTitle:'Скачать тир-лист', format:'Формат файла',
+    pngBest:'PNG — лучшее качество', jpgSmall:'JPG — меньший размер', webpCompact:'WEBP — компактный формат',
+    resolution:'Разрешение', normal:'Обычное (1×)', high:'Высокое (2×)', maximum:'Максимальное (3×)',
+    exportNote:'В файл попадут ранги и распределённые по ним изображения. Нераспределённые изображения не экспортируются.',
+    cancel:'Отмена', downloadAction:'Скачать', saveAction:'Сохранить', deleteAction:'Удалить',
+    editRankName:'Название ранга', rankNameHint:'Название автоматически переносится на несколько строк и уменьшается, если это необходимо.',
+    moveImage:'Переместить изображение', moveImageHint:'Выбери ранг, в который нужно переместить эту фотографию.', unrankedOption:'Нераспределённые изображения', moveAction:'Переместить',
+    confirmDeleteTier:'Удалить этот тир-лист?', confirmDeleteImage:'Удалить это изображение?', confirmDeleteRank:'Удалить ранг?',
+    defaultTitleMissing:'Без названия', noName:'Без названия',
+    cropTitle:'Обрезать изображение', cropHelp:'Поверни или отрази фотографию, затем перемести и измени размер квадратного выделения. Оригинал останется без изменений.',
+    cropPreview:'Предпросмотр обрезки', resizeSelection:'Изменить размер выделения', rotateLeft:'Повернуть влево на 90°', rotateRight:'Повернуть вправо на 90°',
+    flipHorizontal:'Отразить по горизонтали', flipVertical:'Отразить по вертикали', zoomOut:'Отдалить изображение', zoomIn:'Приблизить изображение', fitImage:'Вписать',
+    imageZoom:'Масштаб изображения', selectionSize:'Размер квадратного выделения', squareArea:'Квадратная область', apply:'Применить', resetCrop:'Сбросить обрезку',
+    cropSelection:'Выделение: {size} × {size} исходных пикселей', cropResetDone:'Обрезка сброшена. Окно остаётся открытым — можно продолжить работу.',
+    cropResetApplied:'Обрезка сброшена', imageUpdated:'Изображение обновлено', waitImage:'Подожди, пока изображение загрузится.',
+    cropOpenError:'Не удалось открыть изображение для обрезки.',
+    tierCount:'рангов', tierOne:'ранг', imageOne:'изображение', imagesMany:'изображений',
+    open:'Открыть', rename:'Переименовать', remove:'Удалить',
+    emptyPool:'Все загруженные изображения распределены или пока не добавлены. Перетащи файлы сюда либо воспользуйся кнопкой «Добавить изображения».',
+    rankDragHint:'Перетащи ранг мышью. На телефоне используй стрелки ↑ и ↓.',
+    rankRenameHint:'Изменить название ранга', rankColorHint:'Изменить цвет ранга', addRankBelow:'Добавить ранг ниже', moveRankUp:'Поднять ранг', moveRankDown:'Опустить ранг',
+    clearRank:'Переместить все изображения ранга в нижнюю область', deleteRank:'Удалить ранг',
+    tileDragHint:'Перетащи, чтобы переместить. Двойной щелчок — изменить название.', cropImage:'Выбрать область изображения', renameImage:'Переименовать изображение', moveImageOther:'Переместить изображение в другой ранг',
+    rankDeleted:'Ранг «{name}» будет удалён. Его изображения вернутся в нижнюю область.',
+    imageDeleted:'«{name}» будет удалено из этого тир-листа.',
+    newRankName:'Новый', newRankAdded:'Новый ранг добавлен', movedToUnranked:'В нижнюю область перемещено: {count}',
+    rankNameUpdated:'Название ранга обновлено', imageMoved:'Изображение перемещено', imagesAdded:'Добавлено изображений: {count}',
+    backgroundSet:'Фон установлен', settingReset:'Значение сброшено', listSaved:'Тир-лист сохранён в библиотеке',
+    saveError:'Не удалось сохранить. Возможно, закончилось место в хранилище браузера.', readLibraryError:'Не удалось прочитать библиотеку',
+    storageError:'Браузер не разрешил локальное хранилище. Открой страницу в Chrome, Edge, Safari или Firefox.',
+    projectBackupDownloaded:'Резервная копия проекта скачана', projectImported:'Проект импортирован. Сохрани его в библиотеке.',
+    projectImportError:'Не удалось открыть этот JSON-файл проекта', unsupportedProject:'Неподдерживаемый файл проекта',
+    tierNotFound:'Тир-лист не найден', imageExported:'Изображение скачано', exportError:'Не удалось создать изображение.',
+    noRanksLeft:'Должен остаться хотя бы один ранг.', confirmResetLayout:'Сбросить раскладку?', resetLayoutText:'Все изображения вернутся в нижнюю область. Ранги и сами изображения сохранятся.',
+    draftTitle:'Есть незавершённый черновик', continueDraft:'Продолжить', deleteDraft:'Удалить черновик', draftDeleted:'Черновик удалён',
+    restoreDraftDate:'Незавершённый черновик',
+    backupAllTitle:'Резервная копия библиотеки', backupAllHint:'Создать один JSON-файл со всеми сохранёнными тир-листами, изображениями, настройками и текущим черновиком. Храни его в надёжном месте.',
+    backupLibraryDone:'Резервная копия библиотеки скачана', backupLibraryError:'Не удалось создать резервную копию библиотеки.',
+    restoreAllTitle:'Восстановить библиотеку', restoreAllHint:'Тир-листы из копии будут добавлены в библиотеку этого браузера. Проект с таким же ID будет заменён копией. Черновик восстановится, только если в этом браузере сейчас нет другого черновика.',
+    restoreAllConfirm:'Восстановить из резервной копии {count} тир-листов?', restoreLibraryDone:'Восстановлено тир-листов: {count}.',
+    restoreLibraryError:'Не удалось восстановить библиотеку. Возможно, файл повреждён или закончилось место в хранилище.',
+    invalidBackup:'Это не резервная копия библиотеки Tier Studio.',
+    backupButtonHint:'Скачать одну копию всех сохранённых тир-листов, изображений, настроек и текущего черновика.',
+    restoreButtonHint:'Восстановить тир-листы из ранее скачанной резервной копии библиотеки.',
+    rowsMeta:'{rows} рангов · {images} изображений', changedMeta:'Изменён {date}',
+    moveRankPointerHint:'Перетащи ранг за эту ручку. Отпусти его выше или ниже другого ранга.',
+    presentationToggle:'▣ Презентация', languageEnglish:'Английский', languageRussian:'Русский'
+  }
+};
+let currentLanguage = (()=>{try{return localStorage.getItem('tierStudioLanguage')==='ru'?'ru':'en';}catch(_e){return 'en';}})();
+function tr(key,vars={}){
+  let value=(I18N[currentLanguage]&&I18N[currentLanguage][key])||I18N.en[key]||key;
+  return String(value).replace(/\{(\w+)\}/g,(_,name)=>vars[name]??'');
+}
+function setElementText(id,key){const el=$(id);if(el)el.textContent=tr(key);}
+function setElementTitle(id,key){const el=$(id);if(el)el.title=tr(key);}
+function setLeadingLabelText(selector,key){const el=document.querySelector(selector);if(!el)return;for(const node of el.childNodes){if(node.nodeType===Node.TEXT_NODE&&node.textContent.trim()){node.textContent=' '+tr(key)+' ';return;}}el.insertBefore(document.createTextNode(tr(key)+' '),el.firstChild);}
+function setLanguageButtons(){
+  ['langToggle','viewerLangToggle'].forEach(id=>{
+    const b=$(id);if(!b)return;
+    b.innerHTML=currentLanguage==='en'?'<span class="lang-current">EN</span><span class="lang-arrow">↔</span><span>RU</span>':'<span>EN</span><span class="lang-arrow">↔</span><span class="lang-current">RU</span>';
+    b.title=tr('switchLanguage');b.setAttribute('aria-label',tr('switchLanguage'));
+  });
+}
+function applyLanguage({rerender=true}={}){
+  document.documentElement.lang=currentLanguage;
+  document.title=tr('pageTitle');
+  const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=tr('pageDescription');
+  setElementText('navLibrary','navLibrary');setElementText('navCreate','navCreate');
+  const lib=$('libraryView');
+  if(lib){
+    const eyebrow=lib.querySelector('.eyebrow');if(eyebrow)eyebrow.textContent=tr('libraryEyebrow');
+    const h1=lib.querySelector('h1');if(h1)h1.textContent=tr('libraryTitle');
+    const sub=lib.querySelector('.subtitle');if(sub)sub.textContent=tr('librarySubtitle');
+    setElementText('createFromLibrary','createNew');setElementText('backupLibraryBtn','backupLibrary');setElementText('restoreLibraryBtn','restoreLibrary');
+    setElementTitle('backupLibraryBtn','backupButtonHint');setElementTitle('restoreLibraryBtn','restoreButtonHint');
+    const empty=lib.querySelector('.empty-state');if(empty){const h=empty.querySelector('h2'),p=empty.querySelector('p'),b=$('emptyCreate');if(h)h.textContent=tr('emptyTitle');if(p)p.textContent=tr('emptyText');if(b)b.textContent=tr('createFirst');}
+    const foot=lib.querySelector('.footer-note');if(foot)foot.textContent=tr('libraryFooter');
+  }
+  setElementTitle('editorBack','backToLibrary');
+  const titleInput=$('boardTitle');if(titleInput)titleInput.setAttribute('aria-label',currentLanguage==='en'?'Tier list title':'Название тир-листа');
+  setElementText('resetPlacements','resetLayout');setElementTitle('resetPlacements','resetLayoutTitle');
+  setElementText('undoAction','undo');setElementTitle('undoAction','undoTitle');setElementText('redoAction','redo');setElementTitle('redoAction','redoTitle');
+  setElementText('exportProject','projectJson');setElementText('downloadMenuBtn','download');
+  const save=$('saveBoardBtn');if(save)save.textContent=currentBoardId?tr('saveChanges'):tr('save');
+  setElementText('boardFitBtn','overview');setElementTitle('boardFitBtn','overviewTitle');setElementText('boardActualBtn','editAt100');setElementTitle('boardActualBtn','editAt100Title');
+  const boardControls=$('mobileBoardControls');if(boardControls)boardControls.setAttribute('aria-label',tr('boardScale'));
+  const note=$('mobileBoardNote');if(note)note.textContent=tr('overviewHint');
+  const pool=$('poolItems');if(pool){const empty=pool.querySelector('.pool-empty');if(empty)empty.textContent=tr('emptyPool');}
+  const poolTitle=document.querySelector('.pool-title');if(poolTitle)poolTitle.textContent=tr('unranked');
+  const poolHint=document.querySelector('.pool-head .pool-sub');if(poolHint)poolHint.textContent=tr('unrankedHint');
+  const side=$('editorView')?.querySelector('.sidebar');
+  if(side){
+    const titles=side.querySelectorAll('.panel-title');
+    const titleKeys=['images','imageAppearance','boardSize','background','ranks','filesBackup'];
+    titles.forEach((el,i)=>{if(titleKeys[i]){const count=el.querySelector('#imageCountLabel');el.childNodes[0].textContent=tr(titleKeys[i])+(count?' ':'');}});
+    const imageUpload=side.querySelector('label[for="imageUpload"]');if(imageUpload){imageUpload.querySelector('strong').textContent=tr('addImages');imageUpload.querySelectorAll('span')[1].textContent=tr('imageFormats');}
+    const notes=side.querySelectorAll('.setting-note');
+    const noteKeys=['imageOriginals','exactCropHint','rowAutoHeight','ranksHint','jsonHint'];
+    // These are stable notes in document order; the upload note is the first, crop hint the second.
+    notes.forEach((el,i)=>{if(noteKeys[i])el.textContent=tr(noteKeys[i]);});
+    setLeadingLabelText('label[for="imageFit"]','imageFit');
+    const fit=$('imageFit');if(fit){fit.options[0].text=tr('cropSquare');fit.options[1].text=tr('fitWhole');}
+    setLeadingLabelText('label[for="tileSize"]','tileSize');
+    const caption=side.querySelector('.checkline');if(caption){const text=[...caption.childNodes].find(n=>n.nodeType===Node.TEXT_NODE);if(text)text.textContent=' '+tr('showCaptions');}
+    setLeadingLabelText('label[for="boardWidth"]','width');setLeadingLabelText('label[for="rowHeight"]','rowHeight');
+    ['resetTileSize','resetBoardWidth','resetRowHeight'].forEach(id=>{const b=$(id);if(b){b.lastChild.textContent=' '+tr('reset');}});
+    setElementTitle('resetTileSize','resetTile');setElementTitle('resetBoardWidth','resetWidth');setElementTitle('resetRowHeight','resetRowHeight');
+    const bgLabel=side.querySelector('.inline-control label');if(bgLabel)bgLabel.textContent=tr('backgroundColor');
+    const bgUpload=side.querySelector('label[for="backgroundUpload"]');if(bgUpload){bgUpload.querySelector('strong').textContent=tr('uploadBackground');bgUpload.querySelectorAll('span')[1].textContent=tr('backgroundImage');}
+    setElementText('removeBackground','removeBackground');setLeadingLabelText('label[for="backgroundOpacity"]','backgroundOpacity');
+    setElementText('addTierBtn','addRank');setElementText('importProjectBtn','importProject');
+    // The final editor helper is outside the sidebar.
+  }
+  const editorFoot=$('editorView')?.querySelector('.footer-note');if(editorFoot)editorFoot.textContent=tr('editorHint');
+  const viewer=$('viewerView');if(viewer){const eyebrow=viewer.querySelector('.eyebrow');if(eyebrow)eyebrow.textContent=tr('savedTierList');}
+  setElementText('viewerBack','library');setElementText('viewerDownload','downloadTier');setElementText('viewerEdit','edit');setElementText('exitPresentation','presentationExit');setElementText('presentationToggle','presentationToggle');
+  const historyGroup=document.querySelector('.history-actions');if(historyGroup)historyGroup.setAttribute('aria-label',tr('historyActions'));
+  setElementText('discardDraft','deleteDraft');setElementText('resumeDraft','continueDraft');
+  setLanguageButtons();
+  if(rerender){
+    if(state && currentScreen==='editor'){renderBoard();renderPool();}
+    else if(currentScreen==='library' && db){renderLibrary();}
+    if(currentScreen==='viewer' && currentViewerState){$('viewerTitle').textContent=currentViewerState.title||tr('defaultTitleMissing');$('viewerMeta').textContent=tr('rowsMeta',{rows:currentViewerState.rows.length,images:(currentViewerState.items||[]).length})+' · '+tr('changedMeta',{date:formatDate(currentViewerState.updatedAt)});}
+  }
+}
+function toggleLanguage(){
+  currentLanguage=currentLanguage==='en'?'ru':'en';
+  try{localStorage.setItem('tierStudioLanguage',currentLanguage);}catch(_e){}
+  applyLanguage();
+}
+function formatCount(n,type){
+  if(currentLanguage==='en'){
+    const singular=type==='tier'?'tier':'image';return `${n} ${n===1?singular:singular+'s'}`;
+  }
+  if(type==='tier')return `${n} ${n%10===1&&n%100!==11?'ранг':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'ранга':'рангов'}`;
+  return `${n} ${n%10===1&&n%100!==11?'изображение':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'изображения':'изображений'}`;
+}
+
+function defaultState(){
+  return {
+    id: uid(), title: tr('defaultBoardTitle'), createdAt: Date.now(), updatedAt: Date.now(),
+    rows: DEFAULT_ROWS.map(r => ({id:uid(), label:r.label, color:r.color})),
+    items: [],
+    config: {backgroundColor:'#1a1b16', backgroundImage:null, backgroundOpacity:100,
+      boardWidth:960, rowHeight:80, tileSize:80, imageFit:'cover', showItemLabels:false, labelWidth:100}
+  };
+}
+
+function openDatabase(){
+  return new Promise((resolve,reject) => {
+    if (!('indexedDB' in window)) { reject(new Error(tr('storageError'))); return; }
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains('boards')) database.createObjectStore('boards',{keyPath:'id'});
+      if (!database.objectStoreNames.contains('drafts')) database.createObjectStore('drafts',{keyPath:'id'});
+    };
+    request.onsuccess = () => { db = request.result; resolve(db); };
+    request.onerror = () => reject(request.error || new Error(tr('readLibraryError')));
+  });
+}
+function dbRequest(store, mode, action){
+  return new Promise((resolve,reject) => {
+    if (!db) { reject(new Error(tr('readLibraryError'))); return; }
+    const tx = db.transaction(store,mode);
+    const req = action(tx.objectStore(store));
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Операция отменена'));
+  });
+}
+const dbGetAll = store => dbRequest(store,'readonly',s=>s.getAll());
+const dbGet = (store,key) => dbRequest(store,'readonly',s=>s.get(key));
+const dbPut = (store,value) => dbRequest(store,'readwrite',s=>s.put(value));
+const dbDelete = (store,key) => dbRequest(store,'readwrite',s=>s.delete(key));
+
+// Notifications are intentionally silent: the editor should not cover the board
+// with transient pop-ups while the user is arranging a tier list.
+function showToast(message){
+  const text=String(message||'');
+  if(/не удалось|ошиб|ошибка|недостаточно|не поддерживается|could not|failed|error|not supported|storage may be full/i.test(text)){
+    console.warn('[Tier Studio]', text);
+  }
+}
+function showView(name){
+  currentScreen=name;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $(name+'View').classList.add('active');
+  document.body.classList.toggle('presentation', name==='editor' && document.body.classList.contains('presentation'));
+  $('topbar').style.display = name==='viewer' ? 'none' : '';
+  window.scrollTo(0,0);
+}
+function historyClone(source){
+  if(!source)return null;
+  return {
+    ...source,
+    config:{...(source.config||{})},
+    rows:(source.rows||[]).map(row=>({...row})),
+    // src/backgroundImage are immutable strings; retain references instead of copying their bytes.
+    items:(source.items||[]).map(item=>({...item,crop:item.crop?{...item.crop}:null}))
+  };
+}
+function resetHistory(){
+  undoStack=[];redoStack=[];historyGroupOpen=false;
+  clearTimeout(historyGroupTimer);
+  historyLastState=historyClone(state);
+  updateHistoryButtons();
+}
+function updateHistoryButtons(){
+  const undo=$('undoAction'),redo=$('redoAction');
+  if(undo)undo.disabled=undoStack.length===0;
+  if(redo)redo.disabled=redoStack.length===0;
+}
+function recordHistoryMutation(){
+  if(!state)return;
+  if(!historyLastState){historyLastState=historyClone(state);updateHistoryButtons();return;}
+  if(!historyGroupOpen){
+    undoStack.push(historyClone(historyLastState));
+    if(undoStack.length>HISTORY_LIMIT)undoStack.shift();
+    redoStack=[];
+    historyGroupOpen=true;
+  }
+  historyLastState=historyClone(state);
+  clearTimeout(historyGroupTimer);
+  historyGroupTimer=setTimeout(()=>{historyGroupOpen=false;},HISTORY_GROUP_MS);
+  updateHistoryButtons();
+}
+function applyHistoryState(snapshot){
+  if(!snapshot)return;
+  state=historyClone(snapshot);
+  historyLastState=historyClone(state);
+  historyGroupOpen=false;clearTimeout(historyGroupTimer);
+  renderEditor();
+  setDirty(false);
+  updateHistoryButtons();
+}
+function undoAction(){
+  if(!undoStack.length||!state)return;
+  historyGroupOpen=false;clearTimeout(historyGroupTimer);
+  redoStack.push(historyClone(state));
+  const previous=undoStack.pop();
+  applyHistoryState(previous);
+  showToast(currentLanguage==='en'?'Action undone':'Действие отменено');
+}
+function redoAction(){
+  if(!redoStack.length||!state)return;
+  historyGroupOpen=false;clearTimeout(historyGroupTimer);
+  undoStack.push(historyClone(state));
+  const next=redoStack.pop();
+  applyHistoryState(next);
+  showToast(currentLanguage==='en'?'Action redone':'Действие повторено');
+}
+function setDirty(recordHistory=true){
+  if (!state) return;
+  state.updatedAt=Date.now();
+  if(recordHistory)recordHistoryMutation();
+  else {historyLastState=historyClone(state);historyGroupOpen=false;clearTimeout(historyGroupTimer);updateHistoryButtons();}
+  $('saveBoardBtn').textContent = currentBoardId ? tr('saveChanges') : tr('save');
+  clearTimeout(autosaveTimer);
+  autosaveTimer=setTimeout(async()=>{
+    try{
+      if (currentBoardId){
+        const existing = await dbGet('boards', currentBoardId);
+        await dbPut('boards',{...deepClone(state), id:currentBoardId, preview:existing?.preview || null});
+      } else {
+        await dbPut('drafts',{id:'active', state:deepClone(state), updatedAt:Date.now()});
+      }
+    }catch(e){ console.warn('Автосохранение черновика:',e); }
+  },900);
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function renderLibrary(){
+  const grid=$('libraryGrid'); grid.innerHTML='';
+  dbGetAll('boards').then(async boards=>{
+    boards.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    grid.innerHTML='';
+    $('libraryEmpty').style.display=boards.length?'none':'block';
+    for(const board of boards){
+      const card=document.createElement('article'); card.className='library-card';
+      const thumb=document.createElement('div'); thumb.className='library-thumb';
+      if(board.preview){const img=document.createElement('img');img.src=board.preview;thumb.appendChild(img);}
+      else {thumb.innerHTML='<div class="library-placeholder">TIER LIST</div>';}
+      const info=document.createElement('div');info.className='library-info';
+      const itemCount=(board.items||[]).length;
+      const rowCount=(board.rows||[]).length;
+      info.innerHTML=`<div class="library-title">${esc(board.title||tr('defaultTitleMissing'))}</div><div class="library-meta"><span>${tr('rowsMeta',{rows:rowCount,images:itemCount})}</span><span>${formatDate(board.updatedAt)}</span></div>`;
+      const actions=document.createElement('div');actions.className='card-actions';
+      const open=document.createElement('button');open.className='btn small';open.textContent=tr('open');open.onclick=(e)=>{e.stopPropagation();openViewer(board.id)};
+      const edit=document.createElement('button');edit.className='btn small';edit.textContent=tr('edit');edit.onclick=(e)=>{e.stopPropagation();openEditor(board.id)};
+      const remove=document.createElement('button');remove.className='btn small danger';remove.textContent=tr('deleteAction');remove.onclick=async(e)=>{e.stopPropagation();if(await askConfirm(tr('confirmDeleteTier'),currentLanguage==='en'?`“${board.title}” will be removed from your library.`:`«${board.title}» будет удалён из библиотеки.`)){await dbDelete('boards',board.id);renderLibrary();showToast(currentLanguage==='en'?'Tier list deleted':'Тир-лист удалён');}};
+      actions.append(open,edit,remove);card.append(thumb,info,actions);card.onclick=()=>openViewer(board.id);grid.appendChild(card);
+    }
+    updateDraftNotice();
+  }).catch(e=>{console.error(e);showToast(tr('readLibraryError'));});
+}
+function formatDate(t){if(!t)return '';return new Date(t).toLocaleDateString(currentLanguage==='en'?'en-GB':'ru-RU',{day:'2-digit',month:'short',year:'numeric'});}
+async function updateDraftNotice(){
+  const box=$('draftNotice');
+  try{
+    const draft=await dbGet('drafts','active');
+    if(!draft || !draft.state){box.style.display='none';return;}
+    box.style.display='block';box.innerHTML=`<div style="border:1px solid #6a7890;background:#172131;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong style="font-size:13px">${tr('draftTitle')}</strong><div style="font-size:11px;color:#b9c8da;margin-top:3px">${esc(draft.state.title||tr('defaultTitleMissing'))} · ${formatDate(draft.updatedAt)}</div></div><div style="display:flex;gap:7px"><button class="btn small" id="discardDraft">${tr('deleteDraft')}</button><button class="btn small primary" id="resumeDraft">${tr('continueDraft')}</button></div></div>`;
+    $('discardDraft').onclick=async()=>{await dbDelete('drafts','active');updateDraftNotice();showToast(tr('draftDeleted'));};
+    $('resumeDraft').onclick=()=>{state=deepClone(draft.state);currentBoardId=null;resetHistory();renderEditor();showView('editor');};
+  }catch(e){box.style.display='none';}
+}
+async function openEditor(id=null){
+  if(id){const found=await dbGet('boards',id);if(!found){showToast(tr('tierNotFound'));return;}state=deepClone(found);delete state.preview;currentBoardId=id;}
+  else {state=defaultState();currentBoardId=null;}
+  resetHistory();
+  renderEditor();showView('editor');
+}
+async function openViewer(id){
+  const board=await dbGet('boards',id);if(!board){showToast(tr('tierNotFound'));return;}
+  currentViewerState=board; $('viewerTitle').textContent=board.title||tr('defaultTitleMissing');
+  $('viewerMeta').textContent=tr('rowsMeta',{rows:board.rows.length,images:(board.items||[]).length})+' · '+tr('changedMeta',{date:formatDate(board.updatedAt)});
+  const canvas=await renderBoardCanvas(board,1.35);const target=$('viewerCanvas');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
+  showView('viewer');
+}
+let mobileBoardFit=false;
+function isCompactViewport(){return window.matchMedia('(max-width: 820px)').matches;}
+function clearBoardViewportTransform(){
+  const shell=$('boardShell'),board=$('board');
+  if(!shell||!board)return;
+  shell.classList.remove('mobile-fit-mode','presentation-fit-mode');
+  shell.style.removeProperty('width');
+  shell.style.removeProperty('height');
+  shell.style.removeProperty('margin');
+  shell.style.removeProperty('overflow');
+  board.style.removeProperty('position');
+  board.style.removeProperty('left');
+  board.style.removeProperty('top');
+  board.style.removeProperty('transform');
+  board.style.removeProperty('transform-origin');
+}
+function applyBoardViewportTransform(mode){
+  const shell=$('boardShell'),board=$('board');
+  if(!shell||!board)return;
+  clearBoardViewportTransform();
+  const boardWidth=Math.max(1,board.offsetWidth||960);
+  const boardHeight=Math.max(1,board.offsetHeight||720);
+  const availableWidth=Math.max(240,window.innerWidth-24);
+  let scale=Math.min(1,availableWidth/boardWidth);
+  if(mode==='presentation-fit'){
+    const availableHeight=Math.max(220,window.innerHeight-112);
+    scale=Math.min(scale,availableHeight/boardHeight);
+  }else{
+    // Overview mode is intentionally width-fit; the page can still scroll
+    // vertically if a rank contains many rows of images.
+    scale=Math.min(1,scale);
+  }
+  const scaledWidth=Math.max(1,Math.round(boardWidth*scale));
+  const scaledHeight=Math.max(1,Math.round(boardHeight*scale));
+  shell.classList.add(mode==='presentation-fit'?'presentation-fit-mode':'mobile-fit-mode');
+  shell.style.width=scaledWidth+'px';
+  shell.style.height=scaledHeight+'px';
+  shell.style.margin='0 auto';
+  shell.style.overflow='hidden';
+  board.style.position='absolute';
+  board.style.left='0';
+  board.style.top='0';
+  board.style.transformOrigin='top left';
+  board.style.transform=`scale(${scale})`;
+}
+function updateBoardViewport(){
+  const presenting=document.body.classList.contains('presentation');
+  if(presenting && isCompactViewport()){
+    applyBoardViewportTransform('presentation-fit');
+  }else if(!presenting && mobileBoardFit && isCompactViewport()){
+    applyBoardViewportTransform('mobile-fit');
+  }else{
+    clearBoardViewportTransform();
+  }
+  const fitButton=$('boardFitBtn'),actualButton=$('boardActualBtn');
+  if(fitButton){fitButton.classList.toggle('primary',mobileBoardFit);fitButton.setAttribute('aria-pressed',String(mobileBoardFit));}
+  if(actualButton){actualButton.classList.toggle('primary',!mobileBoardFit);actualButton.setAttribute('aria-pressed',String(!mobileBoardFit));}
+}
+function setMobileBoardFit(enabled){
+  mobileBoardFit=!!enabled;
+  updateBoardViewport();
+  if(mobileBoardFit)showToast(tr('overviewHint'));
+}
+$('boardFitBtn').addEventListener('click',()=>setMobileBoardFit(true));
+$('boardActualBtn').addEventListener('click',()=>setMobileBoardFit(false));
+window.addEventListener('resize',()=>requestAnimationFrame(updateBoardViewport),{passive:true});
+
+function renderEditor(){
+  $('boardTitle').value=state.title||'';
+  $('backgroundColor').value=state.config.backgroundColor||'#1a1b16';
+  $('imageFit').value=state.config.imageFit||'cover';
+  $('tileSize').value=state.config.tileSize||80;$('tileSizeVal').textContent=(state.config.tileSize||80)+' px';
+  $('boardWidth').value=state.config.boardWidth||960;$('boardWidthVal').textContent=(state.config.boardWidth||960)+' px';
+  $('rowHeight').value=state.config.rowHeight||80;$('rowHeightVal').textContent=(state.config.rowHeight||80)+' px';
+  $('showItemLabels').checked=!!state.config.showItemLabels;
+  $('backgroundOpacity').value=state.config.backgroundOpacity??22;$('backgroundOpacityVal').textContent=(state.config.backgroundOpacity??22)+'%';
+  $('backgroundImageActions').style.display=state.config.backgroundImage?'block':'none';
+  renderBoard();renderPool();
+}
+function renderBoard(){
+  const board=$('board');const bg=$('boardBg');const content=$('boardContent');
+  board.style.width=Math.min(1500,Math.max(600,state.config.boardWidth||960))+'px';
+  board.style.setProperty('--row-height',(state.config.rowHeight||80)+'px');
+  board.style.setProperty('--tile-size',(state.config.tileSize||80)+'px');
+  board.style.setProperty('--image-fit',state.config.imageFit||'cover');
+  board.style.backgroundColor=state.config.backgroundColor||'#1a1b16';
+  bg.style.backgroundImage=state.config.backgroundImage?`url("${state.config.backgroundImage}")`:'';
+  bg.style.opacity=String((state.config.backgroundOpacity??100)/100);
+  content.innerHTML='';
+
+  state.rows.forEach((row,index)=>{
+    const rowEl=document.createElement('div');rowEl.className='tier-row';rowEl.dataset.rowId=row.id;
+    const label=document.createElement('div');label.className='tier-label';label.style.background=row.color;
+
+    const labelMetrics=getRankLabelLayout(String(row.label||''),88,Math.max(30,(state.config.rowHeight||80)-10));
+    const labelText=document.createElement('div');labelText.className='tier-label-text';
+    labelText.textContent=labelMetrics.lines.join('\n');
+    labelText.style.fontSize=labelMetrics.fontSize+'px';
+    labelText.title=String(row.label||'');
+    label.appendChild(labelText);
+
+    const tools=document.createElement('div');tools.className='tier-tools';
+    const grip=toolBtn('⠿',tr('rankDragHint'),()=>{});
+    grip.classList.add('row-grip');
+    // Use pointer-based row reordering instead of native HTML drag-and-drop.
+    // This gives deterministic before/after placement even with nested row controls.
+    grip.draggable=false;
+    grip.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='touch'||e.button!==0)return;
+      e.preventDefault();e.stopPropagation();
+      rowPointerDrag={sourceId:row.id,targetId:row.id,after:false,startX:e.clientX,startY:e.clientY,pointerId:e.pointerId,active:false};
+      try{grip.setPointerCapture(e.pointerId);}catch(_err){}
+    });
+    grip.addEventListener('pointermove',e=>{
+      if(!rowPointerDrag||rowPointerDrag.pointerId!==e.pointerId)return;
+      const dx=e.clientX-rowPointerDrag.startX,dy=e.clientY-rowPointerDrag.startY;
+      if(!rowPointerDrag.active && Math.hypot(dx,dy)<5)return;
+      rowPointerDrag.active=true;
+      document.body.classList.add('row-drag-active');
+      document.querySelectorAll('.row-drop-over').forEach(el=>el.classList.remove('row-drop-over'));
+      const hit=document.elementFromPoint(e.clientX,e.clientY);
+      const targetRow=hit?.closest('.tier-row');
+      if(!targetRow)return;
+      const targetId=targetRow.dataset.rowId;
+      if(!targetId||targetId===rowPointerDrag.sourceId)return;
+      const rect=targetRow.getBoundingClientRect();
+      rowPointerDrag.targetId=targetId;
+      rowPointerDrag.after=e.clientY>rect.top+rect.height/2;
+      targetRow.classList.add('row-drop-over');
+    });
+    const finishRowPointerDrag=(e)=>{
+      if(!rowPointerDrag||rowPointerDrag.pointerId!==e.pointerId)return;
+      const drag={...rowPointerDrag};
+      rowPointerDrag=null;
+      document.body.classList.remove('row-drag-active');
+      document.querySelectorAll('.row-drop-over').forEach(el=>el.classList.remove('row-drop-over'));
+      if(drag.active&&drag.targetId&&drag.targetId!==drag.sourceId){
+        reorderRowById(drag.sourceId,drag.targetId,drag.after);
+      }
+    };
+    grip.addEventListener('pointerup',finishRowPointerDrag);
+    grip.addEventListener('pointercancel',finishRowPointerDrag);
+
+    const editLabel=toolBtn('✎',tr('rankRenameHint'),()=>editRowLabel(row.id));
+    const colorTool=document.createElement('label');colorTool.className='color-tool';colorTool.title=tr('rankColorHint');colorTool.setAttribute('aria-label',tr('rankColorHint'));
+    const colorIcon=document.createElement('span');colorIcon.textContent='🎨';
+    const color=document.createElement('input');color.type='color';color.value=row.color;color.setAttribute('aria-label',tr('rankColorHint'));
+    color.addEventListener('click',e=>e.stopPropagation());
+    color.addEventListener('input',()=>{row.color=color.value;label.style.background=row.color;setDirty();});
+    colorTool.append(colorIcon,color);
+
+    const add=toolBtn('+',tr('addRankBelow'),()=>addRow(index+1));
+    const up=toolBtn('↑',tr('moveRankUp'),()=>moveRow(index,-1));up.disabled=index===0;
+    const down=toolBtn('↓',tr('moveRankDown'),()=>moveRow(index,1));down.disabled=index===state.rows.length-1;
+    const clear=toolBtn('⌫',tr('clearRank'),()=>clearRow(row.id));clear.classList.add('row-clear');
+    const del=toolBtn('×',tr('deleteRank'),()=>deleteRow(row.id));del.classList.add('row-delete');
+    tools.append(grip,editLabel,colorTool,add,up,down,clear,del);
+
+    rowEl.addEventListener('dragover',e=>{if(dragRowId && dragRowId!==row.id){e.preventDefault();e.dataTransfer.dropEffect='move';rowEl.classList.add('row-drop-over');}});
+    rowEl.addEventListener('dragleave',e=>{if(!rowEl.contains(e.relatedTarget))rowEl.classList.remove('row-drop-over');});
+    rowEl.addEventListener('drop',e=>{if(dragRowId){e.preventDefault();e.stopPropagation();rowEl.classList.remove('row-drop-over');reorderRowById(dragRowId,row.id,e.clientY>rowEl.getBoundingClientRect().top+rowEl.offsetHeight/2);dragRowId=null;}});
+
+    const items=document.createElement('div');items.className='tier-items';items.dataset.drop='row';items.dataset.rowId=row.id;
+    const rankMinHeight=Math.max(state.config.rowHeight||80,Math.ceil(labelMetrics.height+10));
+    rowEl.style.minHeight=rankMinHeight+'px';
+    items.style.minHeight=rankMinHeight+'px';
+    items.addEventListener('dragover',onItemDragOver);items.addEventListener('dragleave',onDragLeave);items.addEventListener('drop',e=>{if(dragRowId){e.preventDefault();e.stopPropagation();reorderRowById(dragRowId,row.id,e.clientY>rowEl.getBoundingClientRect().top+rowEl.offsetHeight/2);dragRowId=null;rowEl.classList.remove('row-drop-over');}else{onItemDrop(e,row.id,null);}});
+    state.items.filter(it=>it.rowId===row.id).forEach(item=>items.appendChild(createItemTile(item)));
+    rowEl.append(tools,label,items);content.appendChild(rowEl);
+  });
+  content.querySelectorAll('.item-tile').forEach(bindTileDrag);
+  requestAnimationFrame(updateBoardViewport);
+}
+
+function toolBtn(text,title,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.title=title;b.onclick=(e)=>{e.stopPropagation();fn();};return b;}
+function createItemTile(item){
+  const tile=document.createElement('div');tile.className='item-tile';tile.draggable=true;tile.dataset.itemId=item.id;tile.title=tr('tileDragHint');
+  const imageWrap=document.createElement('div');imageWrap.className='item-image-wrap';
+  const img=document.createElement('img');img.alt=item.name||'';img.draggable=false;
+  img.addEventListener('load',()=>{
+    // For rotated/mirrored photos, bake only the display transform into a temporary preview.
+    // The original item.src remains untouched in the project and in the library.
+    const hasTransform=((Number(item.rotation)||0)%360)!==0||!!item.flipX||!!item.flipY;
+    if(hasTransform&&!img.dataset.orientationApplied){
+      try{
+        const oriented=createOrientedCanvas(img,Number(item.rotation)||0,!!item.flipX,!!item.flipY);
+        img.dataset.orientationApplied='1';
+        img.src=oriented.toDataURL('image/png');
+        return;
+      }catch(err){console.warn('Не удалось повернуть предпросмотр изображения:',err);}
+    }
+    applyTileCrop(img,item);
+  });
+  img.src=item.src;
+  imageWrap.appendChild(img);tile.appendChild(imageWrap);
+  if(state.config.showItemLabels){const cap=document.createElement('div');cap.className='item-caption';cap.textContent=item.name||'';tile.appendChild(cap);}
+  const actions=document.createElement('div');actions.className='tile-actions';
+  const crop=toolBtn('✂',tr('cropImage'),()=>openCropEditor(item.id));
+  const rename=toolBtn('✎',tr('renameImage'),()=>renameItem(item.id));
+  const move=toolBtn('↗',tr('moveImageOther'),()=>openMoveItemDialog(item.id));
+  move.classList.add('tile-move-btn');
+  const remove=toolBtn('×',tr('remove'),()=>removeItem(item.id));
+  actions.append(crop,rename,remove,move);tile.appendChild(actions);
+  tile.addEventListener('dblclick',()=>renameItem(item.id));
+  tile.addEventListener('dragover',onItemDragOver);tile.addEventListener('dragleave',onDragLeave);
+  tile.addEventListener('drop',e=>{if(dragRowId){e.preventDefault();e.stopPropagation();if(item.rowId)reorderRowById(dragRowId,item.rowId,false);dragRowId=null;}else{onItemDrop(e,null,item.id);}});
+  return tile;
+}
+function bindTileDrag(tile){tile.addEventListener('dragstart',e=>{dragItemId=tile.dataset.itemId;tile.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragItemId);});tile.addEventListener('dragend',()=>{dragItemId=null;tile.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over'));});}
+function renderPool(){
+  const pool=$('poolItems');pool.innerHTML='';pool.dataset.drop='pool';
+  const items=state.items.filter(it=>!it.rowId);
+  $('poolCount').textContent=formatCount(items.length,'image');
+  $('imageCountLabel').textContent=state.items.length;
+  if(!items.length){const empty=document.createElement('div');empty.className='pool-empty';empty.textContent=tr('emptyPool');pool.appendChild(empty);}
+  items.forEach(item=>pool.appendChild(createItemTile(item)));
+  pool.querySelectorAll('.item-tile').forEach(bindTileDrag);
+}
+function plural(n,a,b,c){const m=n%10,nn=n%100;return nn>=11&&nn<=14?c:m===1?a:m>=2&&m<=4?b:c;}
+function onItemDragOver(e){if(!dragItemId)return;e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drag-over');}
+function onDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over');}
+function onItemDrop(e,rowId,targetItemId){
+  e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drag-over');
+  const id=dragItemId||e.dataTransfer.getData('text/plain');if(!id)return;
+  const dragged=state.items.find(x=>x.id===id);if(!dragged)return;
+  if(targetItemId && targetItemId!==id){
+    const target=state.items.find(x=>x.id===targetItemId);if(!target)return;
+    dragged.rowId=target.rowId;
+    const from=state.items.indexOf(dragged);state.items.splice(from,1);
+    const to=state.items.indexOf(target);
+    const rect=e.currentTarget.getBoundingClientRect();
+    const after=e.clientX>rect.left+rect.width/2;
+    state.items.splice(to+(after?1:0),0,dragged);
+  } else {
+    dragged.rowId=rowId;
+    // Перенос в область ранга добавляет элемент в конец этой группы.
+    if(rowId){const idx=state.items.indexOf(dragged);state.items.splice(idx,1);let last=-1;state.items.forEach((x,i)=>{if(x.rowId===rowId)last=i;});state.items.splice(last+1,0,dragged);}
+  }
+  setDirty();renderBoard();renderPool();
+}
+
+function reorderRowById(sourceId,targetId,after=false){
+  if(!sourceId||!targetId||sourceId===targetId)return;
+  const from=state.rows.findIndex(r=>r.id===sourceId);
+  const target=state.rows.findIndex(r=>r.id===targetId);
+  if(from<0||target<0)return;
+
+  // Calculate the insertion slot against the original order first, then
+  // compensate for removing the source row. This avoids off-by-one drops.
+  let insertAt=target+(after?1:0);
+  const [moving]=state.rows.splice(from,1);
+  if(from<insertAt)insertAt--;
+  insertAt=clamp(insertAt,0,state.rows.length);
+  if(state.rows[insertAt]===moving)return;
+  state.rows.splice(insertAt,0,moving);
+  setDirty();
+  renderBoard();
+}
+
+function moveRow(index,dir){const next=index+dir;if(next<0||next>=state.rows.length)return;const [r]=state.rows.splice(index,1);state.rows.splice(next,0,r);setDirty();renderBoard();}
+function addRow(index=state.rows.length){const colors=['#ff7f7f','#ffbf7f','#ffdf7f','#feff7f','#beff7f','#7eff80','#7fffff','#7fbfff','#a78bfa'];const row={id:uid(),label:tr('newRankName'),color:colors[state.rows.length%colors.length]};state.rows.splice(Math.min(index,state.rows.length),0,row);setDirty();renderBoard();showToast(tr('newRankAdded'));}
+function clearRow(rowId){const count=state.items.filter(it=>it.rowId===rowId).length;state.items.forEach(it=>{if(it.rowId===rowId)it.rowId=null;});setDirty();renderBoard();renderPool();showToast(tr('movedToUnranked',{count}));}
+async function deleteRow(rowId){if(state.rows.length<=1){showToast(tr('noRanksLeft'));return;}const row=state.rows.find(r=>r.id===rowId);if(!await askConfirm(tr('confirmDeleteRank'),tr('rankDeleted',{name:row?.label||''})))return;state.items.forEach(it=>{if(it.rowId===rowId)it.rowId=null;});state.rows=state.rows.filter(r=>r.id!==rowId);setDirty();renderBoard();renderPool();}
+async function renameItem(id){const item=state.items.find(x=>x.id===id);if(!item)return;const name=await askInput(tr('renameImage'),currentLanguage==='en'?'You can leave this blank.':'Можно оставить пустым.',item.name||'');if(name===null)return;item.name=name.trim();setDirty();renderBoard();renderPool();}
+async function editRowLabel(rowId){
+  const row=state.rows.find(r=>r.id===rowId);if(!row)return;
+  const body=`<p>${tr('rankNameHint')}</p><textarea id="rowLabelInput" maxlength="160" rows="4" style="width:100%;min-height:100px;resize:vertical;color:var(--text);background:#101722;border:1px solid #40506a;border-radius:8px;padding:10px;font-size:14px;line-height:1.45">${esc(row.label||'')}</textarea><div class="setting-note" style="text-align:right"><span id="rowLabelCount">${String(row.label||'').length}</span>/160</div>`;
+  openModal(tr('editRankName'),body,[
+    {label:tr('cancel'),className:'btn',value:false},
+    {label:tr('saveAction'),className:'btn primary',value:true}
+  ],ok=>{
+    if(!ok)return;
+    row.label=$('rowLabelInput').value.trim();
+    setDirty();renderBoard();showToast(tr('rankNameUpdated'));
+  });
+  const input=$('rowLabelInput');
+  input.addEventListener('input',()=>{$('rowLabelCount').textContent=String(input.value.length);});
+  input.focus();input.setSelectionRange(input.value.length,input.value.length);
+}
+async function removeItem(id){const item=state.items.find(x=>x.id===id);if(!item)return;if(!await askConfirm(tr('confirmDeleteImage'),tr('imageDeleted',{name:item.name||tr('noName')})))return;state.items=state.items.filter(x=>x.id!==id);setDirty();renderBoard();renderPool();}
+
+// On touch devices, use a simple destination picker instead of relying on HTML5 drag-and-drop.
+function openMoveItemDialog(id){
+  const item=state.items.find(x=>x.id===id);if(!item)return;
+  const options=[`<option value="">${tr('unrankedOption')}</option>`,...state.rows.map(row=>`<option value="${esc(row.id)}" ${item.rowId===row.id?'selected':''}>${esc(row.label||tr('noName'))}</option>`)];
+  openModal(tr('moveImage'),`<p>${tr('moveImageHint')}</p><select id="moveItemTarget" style="width:100%">${options.join('')}</select>`,[
+    {label:tr('cancel'),className:'btn',value:false},
+    {label:tr('moveAction'),className:'btn primary',value:true}
+  ],ok=>{
+    if(!ok)return;
+    const targetRowId=$('moveItemTarget').value||null;
+    item.rowId=targetRowId;
+    const currentIndex=state.items.indexOf(item);
+    if(currentIndex>=0)state.items.splice(currentIndex,1);
+    if(targetRowId){
+      let last=-1;
+      state.items.forEach((entry,index)=>{if(entry.rowId===targetRowId)last=index;});
+      state.items.splice(last+1,0,item);
+    }else{
+      state.items.push(item);
+    }
+    setDirty();renderBoard();renderPool();showToast(tr('imageMoved'));
+  });
+}
+
+function askConfirm(title,message){return new Promise(resolve=>{openModal(title,`<p>${esc(message)}</p>`,[{label:tr('cancel'),className:'btn',value:false},{label:tr('deleteAction'),className:'btn danger',value:true}],resolve);});}
+function askInput(title,message,value=''){return new Promise(resolve=>{openModal(title,`<p>${esc(message)}</p><input id="modalInput" type="text" value="${esc(value)}" maxlength="100" style="width:100%">`,[{label:tr('cancel'),className:'btn',value:null},{label:tr('saveAction'),className:'btn primary',value:'ok'}],result=>{if(result===null)resolve(null);else resolve($('modalInput').value);});setTimeout(()=>$('modalInput')?.focus(),40);});}
+function openModal(title,content,actions,callback){$('modalTitle').textContent=title;$('modalContent').innerHTML=content;$('modalActions').innerHTML='';actions.forEach(a=>{const b=document.createElement('button');b.className=a.className;b.textContent=a.label;b.type='button';b.onclick=()=>{if(!a.keepOpen)closeModal();callback(a.value);};$('modalActions').appendChild(b);});$('modalBackdrop').classList.add('show');}
+function closeModal(){$('modalBackdrop').classList.remove('show');$('modalBox').classList.remove('crop-modal');}
+let modalBackdropPointerArmed=false;
+$('modalBackdrop').addEventListener('pointerdown',e=>{
+  modalBackdropPointerArmed=(e.target===$('modalBackdrop') && e.button===0);
+});
+$('modalBackdrop').addEventListener('pointerup',e=>{
+  const shouldClose=modalBackdropPointerArmed && e.target===$('modalBackdrop');
+  modalBackdropPointerArmed=false;
+  if(shouldClose)closeModal();
+});
+$('modalBackdrop').addEventListener('pointercancel',()=>{modalBackdropPointerArmed=false;});
+$('modalBox').addEventListener('pointerdown',()=>{modalBackdropPointerArmed=false;});
+
+function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file);});}
+
+// Индивидуальная квадратная обрезка: исходный файл остаётся нетронутым,
+// в проект сохраняются только нормализованные координаты выделения.
+async function openCropEditor(itemId){
+  const item=state.items.find(x=>x.id===itemId);if(!item)return;
+  const originalSource=await loadImage(item.src);
+  if(!originalSource){showToast(tr('cropOpenError'));return;}
+
+  let rotation=((Number(item.rotation)||0)%360+360)%360;
+  let flipX=!!item.flipX;
+  let flipY=!!item.flipY;
+  let source=createOrientedCanvas(originalSource,rotation,flipX,flipY);
+  let fitScale=1,zoomFactor=1,displayWidth=1,displayHeight=1,maxSide=1;
+  let crop={x:0,y:0,side:1};
+  let dragMode=null,dragStart=null;
+  let cropInitialized=false;
+  let resetRequested=false;
+
+  const content=`
+    <div class="crop-editor">
+      <div class="crop-help">${tr('cropHelp')}</div>
+      <div class="crop-stage-frame" id="cropFrame"><div class="crop-stage" id="cropStage"><img class="crop-source" id="cropSource" alt="${tr('cropPreview')}"><div class="crop-selection" id="cropSelection"><div class="crop-handle" id="cropHandle" title="${tr('resizeSelection')}"></div></div></div></div>
+      <div class="crop-transform-controls">
+        <button class="btn" type="button" id="cropRotateLeft" title="${tr('rotateLeft')}">↶ 90°</button>
+        <button class="btn" type="button" id="cropRotateRight" title="${tr('rotateRight')}">↷ 90°</button>
+        <button class="btn" type="button" id="cropFlipHorizontal" title="${tr('flipHorizontal')}">⇋ ${tr('flipHorizontal')}</button>
+        <button class="btn" type="button" id="cropFlipVertical" title="${tr('flipVertical')}">⇅ ${tr('flipVertical')}</button>
+      </div>
+      <div class="crop-zoom-controls">
+        <div class="crop-zoom-buttons">
+          <button class="btn" type="button" id="cropZoomOut" title="${tr('zoomOut')}">−</button>
+          <button class="btn" type="button" id="cropZoomIn" title="${tr('zoomIn')}">＋</button>
+          <button class="btn zoom-fit" type="button" id="cropZoomFit" title="${tr('fitImage')}">${tr('fitImage')}</button>
+        </div>
+        <div class="crop-zoom-slider">
+          <label for="cropZoom"><span>${tr('imageZoom')}</span><strong id="cropZoomValue">100%</strong></label>
+          <input type="range" id="cropZoom" min="25" max="300" step="5" value="100">
+        </div>
+      </div>
+      <div class="crop-size-control">
+        <div>
+          <label for="cropSize"><span>${tr('selectionSize')}</span><strong id="cropSizeValue">78%</strong></label>
+          <input type="range" id="cropSize" min="12" max="100" step="1" value="78">
+        </div>
+        <div class="crop-help" id="cropDimensions">${tr('squareArea')}</div>
+      </div>
+    </div>`;
+
+  openModal(tr('cropTitle'),content,[
+    {label:tr('cancel'),className:'btn',value:'cancel'},
+    {label:tr('resetCrop'),className:'btn',value:'reset',keepOpen:true},
+    {label:tr('apply'),className:'btn primary',value:'apply'}
+  ],result=>{
+    if(result==='reset'){
+      if(!cropInitialized){showToast(tr('waitImage'));return;}
+      resetRequested=true;
+      zoomFactor=1;
+      updateStageDimensions();
+      crop={side:maxSide*.78,x:(displayWidth-maxSide*.78)/2,y:(displayHeight-maxSide*.78)/2};
+      updateCropUI();
+      frame.scrollLeft=0;frame.scrollTop=0;
+      showToast(tr('cropResetDone'));
+    }else if(result==='apply'){
+      item.rotation=rotation;
+      item.flipX=flipX;
+      item.flipY=flipY;
+      if(resetRequested){
+        item.crop=null;
+      }else{
+        item.crop={
+          x:crop.x/displayWidth,
+          y:crop.y/displayHeight,
+          w:crop.side/displayWidth,
+          h:crop.side/displayHeight
+        };
+      }
+      setDirty();renderBoard();renderPool();
+      showToast(resetRequested?tr('cropResetApplied'):tr('imageUpdated'));
+    }
+  });
+
+  $('modalBox').classList.add('crop-modal');
+  const frame=$('cropFrame');
+  const stage=$('cropStage');
+  const sourceEl=$('cropSource');
+  const selection=$('cropSelection');
+  const handle=$('cropHandle');
+  sourceEl.src=source.toDataURL('image/png');
+
+  function normalizedCrop(){
+    return {x:crop.x/displayWidth,y:crop.y/displayHeight,w:crop.side/displayWidth,h:crop.side/displayHeight};
+  }
+  function calculateFitScale(){
+    const availableWidth=Math.max(120,frame.clientWidth-40);
+    const availableHeight=Math.max(120,frame.clientHeight-40);
+    return Math.min(availableWidth/source.width,availableHeight/source.height,1);
+  }
+  function updateStageDimensions(){
+    displayWidth=Math.max(1,Math.round(source.width*fitScale*zoomFactor));
+    displayHeight=Math.max(1,Math.round(source.height*fitScale*zoomFactor));
+    maxSide=Math.min(displayWidth,displayHeight);
+    stage.style.width=displayWidth+'px';stage.style.height=displayHeight+'px';
+    sourceEl.style.width=displayWidth+'px';sourceEl.style.height=displayHeight+'px';
+  }
+  function updateCropUI(){
+    selection.style.left=crop.x+'px';selection.style.top=crop.y+'px';
+    selection.style.width=crop.side+'px';selection.style.height=crop.side+'px';
+    const pct=Math.round(crop.side/maxSide*100);
+    $('cropSize').value=String(clamp(pct,12,100));$('cropSizeValue').textContent=pct+'%';
+    const sourceSize=Math.round(crop.side/(fitScale*zoomFactor));$('cropDimensions').textContent=tr('cropSelection',{size:sourceSize});
+    $('cropZoom').value=String(Math.round(zoomFactor*100));$('cropZoomValue').textContent=Math.round(zoomFactor*100)+'%';
+    $('cropZoomOut').disabled=zoomFactor<=.25;$('cropZoomIn').disabled=zoomFactor>=3;
+  }
+  function keepSelectionInView(){
+    const targetX=crop.x+crop.side/2-frame.clientWidth/2;
+    const targetY=crop.y+crop.side/2-frame.clientHeight/2;
+    frame.scrollLeft=clamp(targetX,0,Math.max(0,frame.scrollWidth-frame.clientWidth));
+    frame.scrollTop=clamp(targetY,0,Math.max(0,frame.scrollHeight-frame.clientHeight));
+  }
+  function setZoom(nextZoom,centerSelection=true){
+    if(!cropInitialized)return;
+    const saved=normalizedCrop();
+    zoomFactor=clamp(nextZoom,.25,3);
+    updateStageDimensions();
+    crop.side=clamp(Math.min(saved.w*displayWidth,saved.h*displayHeight),Math.min(20,maxSide),maxSide);
+    crop.x=clamp(saved.x*displayWidth,0,displayWidth-crop.side);
+    crop.y=clamp(saved.y*displayHeight,0,displayHeight-crop.side);
+    updateCropUI();
+    if(centerSelection)requestAnimationFrame(keepSelectionInView);
+  }
+  function mapCropForTransform(saved,kind){
+    let c={...saved};
+    if(kind==='rotate_cw')c={x:1-(c.y+c.h),y:c.x,w:c.h,h:c.w};
+    else if(kind==='rotate_ccw')c={x:c.y,y:1-(c.x+c.w),w:c.h,h:c.w};
+    else if(kind==='flip_x')c.x=1-(c.x+c.w);
+    else if(kind==='flip_y')c.y=1-(c.y+c.h);
+    return c;
+  }
+  function applyOrientationChange(kind){
+    if(!cropInitialized)return;
+    const previous=normalizedCrop();
+    if(kind==='rotate_cw')rotation=(rotation+90)%360;
+    if(kind==='rotate_ccw')rotation=(rotation+270)%360;
+    if(kind==='flip_x')flipX=!flipX;
+    if(kind==='flip_y')flipY=!flipY;
+    const mapped=mapCropForTransform(previous,kind);
+    source=createOrientedCanvas(originalSource,rotation,flipX,flipY);
+    sourceEl.src=source.toDataURL('image/png');
+    fitScale=calculateFitScale();zoomFactor=1;updateStageDimensions();
+    crop.side=clamp(Math.min(mapped.w*displayWidth,mapped.h*displayHeight),Math.min(20,maxSide),maxSide);
+    crop.x=clamp(mapped.x*displayWidth,0,displayWidth-crop.side);
+    crop.y=clamp(mapped.y*displayHeight,0,displayHeight-crop.side);
+    updateCropUI();requestAnimationFrame(keepSelectionInView);
+  }
+  function beginPointer(e,mode){
+    e.preventDefault();e.stopPropagation();dragMode=mode;
+    dragStart={pointerX:e.clientX,pointerY:e.clientY,x:crop.x,y:crop.y,side:crop.side};
+    try{selection.setPointerCapture(e.pointerId);}catch(_err){}
+  }
+
+  requestAnimationFrame(()=>{
+    if(!document.body.contains(frame))return;
+    fitScale=calculateFitScale();zoomFactor=1;updateStageDimensions();
+    if(item.crop){
+      const c=item.crop;
+      crop={x:c.x*displayWidth,y:c.y*displayHeight,side:Math.min(c.w*displayWidth,c.h*displayHeight)};
+      crop.side=clamp(crop.side,Math.min(20,maxSide),maxSide);
+      crop.x=clamp(crop.x,0,displayWidth-crop.side);crop.y=clamp(crop.y,0,displayHeight-crop.side);
+    }else{
+      crop={side:maxSide*.78,x:(displayWidth-maxSide*.78)/2,y:(displayHeight-maxSide*.78)/2};
+    }
+    cropInitialized=true;updateCropUI();
+  });
+
+  selection.addEventListener('pointerdown',e=>beginPointer(e,e.target===handle?'resize':'move'));
+  selection.addEventListener('pointermove',e=>{
+    if(!dragMode||!dragStart)return;
+    resetRequested=false;
+    const dx=e.clientX-dragStart.pointerX,dy=e.clientY-dragStart.pointerY;
+    if(dragMode==='move'){
+      crop.x=clamp(dragStart.x+dx,0,displayWidth-crop.side);
+      crop.y=clamp(dragStart.y+dy,0,displayHeight-crop.side);
+    }else{
+      const minSide=Math.min(20,maxSide);
+      crop.side=clamp(dragStart.side+Math.max(dx,dy),minSide,maxSide);
+      crop.x=clamp(dragStart.x,0,displayWidth-crop.side);
+      crop.y=clamp(dragStart.y,0,displayHeight-crop.side);
+    }
+    updateCropUI();
+  });
+  selection.addEventListener('pointerup',()=>{dragMode=null;dragStart=null;});
+  selection.addEventListener('pointercancel',()=>{dragMode=null;dragStart=null;});
+  $('cropSize').addEventListener('input',e=>{
+    resetRequested=false;
+    const oldSide=crop.side,centerX=crop.x+oldSide/2,centerY=crop.y+oldSide/2;
+    crop.side=maxSide*(+e.target.value/100);
+    crop.x=clamp(centerX-crop.side/2,0,displayWidth-crop.side);
+    crop.y=clamp(centerY-crop.side/2,0,displayHeight-crop.side);
+    updateCropUI();
+  });
+  $('cropZoom').addEventListener('input',e=>setZoom(+e.target.value/100));
+  $('cropZoomOut').addEventListener('click',()=>setZoom(zoomFactor-.15));
+  $('cropZoomIn').addEventListener('click',()=>setZoom(zoomFactor+.15));
+  $('cropZoomFit').addEventListener('click',()=>setZoom(1));
+  $('cropRotateLeft').addEventListener('click',()=>applyOrientationChange('rotate_ccw'));
+  $('cropRotateRight').addEventListener('click',()=>applyOrientationChange('rotate_cw'));
+  $('cropFlipHorizontal').addEventListener('click',()=>applyOrientationChange('flip_x'));
+  $('cropFlipVertical').addEventListener('click',()=>applyOrientationChange('flip_y'));
+}
+$('imageUpload').addEventListener('change',async e=>{
+  const files=[...e.target.files];if(!files.length)return;
+  let added=0;
+  for(const file of files){if(!file.type.startsWith('image/'))continue;try{const src=await readFileAsDataURL(file);state.items.push({id:uid(),name:file.name.replace(/\.[^.]+$/,''),src,rowId:null,crop:null});added++;}catch(err){console.warn(err);}}
+  e.target.value='';setDirty();renderPool();renderBoard();showToast(tr('imagesAdded',{count:added}));
+});
+$('backgroundUpload').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{state.config.backgroundImage=await readFileAsDataURL(file);$('backgroundImageActions').style.display='block';setDirty();renderBoard();showToast(tr('backgroundSet'));}catch(err){showToast(currentLanguage==='en'?'Could not load the background image.':'Не удалось загрузить фон');}e.target.value='';});
+$('removeBackground').onclick=()=>{state.config.backgroundImage=null;$('backgroundImageActions').style.display='none';setDirty();renderBoard();};
+
+$('boardTitle').addEventListener('input',e=>{state.title=e.target.value;const t=$('boardContent').querySelector('.board-title');if(t)t.textContent=state.title||' ';setDirty();});
+$('imageFit').onchange=e=>{state.config.imageFit=e.target.value;setDirty();renderBoard();renderPool();};
+$('tileSize').oninput=e=>{state.config.tileSize=+e.target.value;$('tileSizeVal').textContent=state.config.tileSize+' px';renderBoard();renderPool();setDirty();};
+$('boardWidth').oninput=e=>{state.config.boardWidth=+e.target.value;$('boardWidthVal').textContent=state.config.boardWidth+' px';renderBoard();setDirty();};
+$('rowHeight').oninput=e=>{state.config.rowHeight=+e.target.value;$('rowHeightVal').textContent=state.config.rowHeight+' px';renderBoard();setDirty();};
+function resetRangeSetting(inputId,value,labelId){
+  const input=$(inputId);input.value=String(value);
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  if(labelId)$(labelId).textContent=value+' px';
+  showToast(tr('settingReset'));
+}
+$('resetTileSize').onclick=()=>resetRangeSetting('tileSize',80,'tileSizeVal');
+$('resetBoardWidth').onclick=()=>resetRangeSetting('boardWidth',960,'boardWidthVal');
+$('resetRowHeight').onclick=()=>resetRangeSetting('rowHeight',80,'rowHeightVal');
+$('showItemLabels').onchange=e=>{state.config.showItemLabels=e.target.checked;setDirty();renderBoard();renderPool();};
+$('backgroundColor').oninput=e=>{state.config.backgroundColor=e.target.value;renderBoard();setDirty();};
+$('backgroundOpacity').oninput=e=>{state.config.backgroundOpacity=+e.target.value;$('backgroundOpacityVal').textContent=e.target.value+'%';renderBoard();setDirty();};
+$('addTierBtn').onclick=()=>addRow();
+$('resetPlacements').onclick=async()=>{if(!await askConfirm(tr('confirmResetLayout'),tr('resetLayoutText')))return;state.items.forEach(i=>i.rowId=null);setDirty();renderBoard();renderPool();};
+
+
+function wrapRankTextLines(ctx,text,maxWidth){
+  const words=String(text||'').trim().split(/\s+/).filter(Boolean);
+  if(!words.length)return [''];
+  const lines=[];let line='';
+  const pushLongWord=(word)=>{
+    let chunk='';
+    for(const char of word){
+      const candidate=chunk+char;
+      if(chunk && ctx.measureText(candidate).width>maxWidth){
+        if(line){lines.push(line);line='';}
+        lines.push(chunk);chunk=char;
+      }else chunk=candidate;
+    }
+    return chunk;
+  };
+  for(const word of words){
+    if(ctx.measureText(word).width>maxWidth){
+      if(line){lines.push(line);line='';}
+      const rest=pushLongWord(word);
+      if(rest)line=rest;
+      continue;
+    }
+    const candidate=line?line+' '+word:word;
+    if(line && ctx.measureText(candidate).width>maxWidth){lines.push(line);line=word;}
+    else line=candidate;
+  }
+  if(line)lines.push(line);
+  return lines.length?lines:[''];
+}
+function getRankLabelLayout(text,maxWidth,maxHeight){
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  let best={fontSize:7,lines:[''],lineHeight:7.7,height:7.7};
+  for(let size=14;size>=7;size-=.5){
+    ctx.font=`400 ${size}px Arial, Helvetica, sans-serif`;
+    const lines=wrapRankTextLines(ctx,text,Math.max(20,maxWidth));
+    const lineHeight=size*1.12;
+    const height=lines.length*lineHeight;
+    best={fontSize:size,lines,lineHeight,height};
+    if(height<=Math.max(20,maxHeight))return best;
+  }
+  return best;
+}
+
+function calculateLayout(boardState){
+  const cfg=boardState.config||{};
+  const width=clamp(cfg.boardWidth||960,600,2000);
+  const labelW=cfg.labelWidth||100;
+  const tile=clamp(cfg.tileSize||80,40,240);
+  const gap=0,pad=0;
+  const caption=cfg.showItemLabels?21:0;
+  const cellH=tile+caption;
+  const contentW=Math.max(1,width-labelW-2);
+  const perRow=Math.max(1,Math.floor(contentW/tile));
+  const rows=(boardState.rows||[]).map(r=>{
+    const count=(boardState.items||[]).filter(i=>i.rowId===r.id).length;
+    const imageLines=Math.max(1,Math.ceil(count/perRow));
+    const initialLabel=getRankLabelLayout(String(r.label||''),labelW-12,(cfg.rowHeight||80)-10);
+    const labelHeight=Math.ceil(initialLabel.height+10);
+    const height=Math.max(cfg.rowHeight||80,imageLines*cellH+1,labelHeight);
+    const labelLayout=getRankLabelLayout(String(r.label||''),labelW-12,height-10);
+    return {...r,height,labelLayout};
+  });
+  const titleH=0;
+  const height=2+rows.reduce((sum,r)=>sum+r.height,0);
+  return {width,height,labelW,tile,gap,pad,caption,cellH,perRow,titleH,rows};
+}
+function loadImage(src){return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=src;});}
+function createOrientedCanvas(image,rotation=0,flipX=false,flipY=false){
+  const angle=((Number(rotation)||0)%360+360)%360;
+  const swap=angle===90||angle===270;
+  const canvas=document.createElement('canvas');
+  canvas.width=swap?image.height:image.width;
+  canvas.height=swap?image.width:image.height;
+  const ctx=canvas.getContext('2d');
+  ctx.translate(canvas.width/2,canvas.height/2);
+  ctx.rotate(angle*Math.PI/180);
+  ctx.scale(flipX?-1:1,flipY?-1:1);
+  ctx.drawImage(image,-image.width/2,-image.height/2);
+  return canvas;
+}
+function applyTileCrop(img,item){
+  if(!item.crop)return;
+  const c=item.crop;
+  img.style.position='absolute';img.style.maxWidth='none';img.style.maxHeight='none';img.style.objectFit='fill';
+  img.style.width=(100/c.w)+'%';img.style.height=(100/c.h)+'%';
+  img.style.left=(-c.x/c.w*100)+'%';img.style.top=(-c.y/c.h*100)+'%';
+}
+async function renderBoardCanvas(boardState,scale=2){
+  const layout=calculateLayout(boardState);
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.round(layout.width*scale);
+  canvas.height=Math.round(layout.height*scale);
+  const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
+  const cfg=boardState.config||{};
+  ctx.fillStyle=cfg.backgroundColor||'#1a1b16';
+  ctx.fillRect(0,0,layout.width,layout.height);
+  if(cfg.backgroundImage){
+    const bg=await loadImage(cfg.backgroundImage);
+    if(bg){
+      const ratio=Math.max(layout.width/bg.width,layout.height/bg.height);
+      const w=bg.width*ratio,h=bg.height*ratio;
+      ctx.save();ctx.globalAlpha=(cfg.backgroundOpacity??100)/100;
+      ctx.drawImage(bg,(layout.width-w)/2,(layout.height-h)/2,w,h);ctx.restore();
+    }
+  }
+  const imageCache=new Map();
+  for(const item of (boardState.items||[])){
+    const original=await loadImage(item.src);
+    if(!original){imageCache.set(item.id,null);continue;}
+    const rotation=((Number(item.rotation)||0)%360+360)%360;
+    const hasTransform=rotation!==0||!!item.flipX||!!item.flipY;
+    imageCache.set(item.id,hasTransform?createOrientedCanvas(original,rotation,!!item.flipX,!!item.flipY):original);
+  }
+  let y=1;
+  for(const row of layout.rows){
+    // Rows reproduce the flat dark TierMaker-style grid; the background remains visible beneath.
+    ctx.fillStyle=cfg.backgroundImage?'rgba(26,27,22,.08)':'#1a1b16';
+    ctx.fillRect(1,y,layout.width-2,row.height-1);
+    ctx.fillStyle=row.color||'#777';
+    ctx.fillRect(1,y,layout.labelW-1,row.height-1);
+    ctx.strokeStyle='#000';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(layout.labelW+.5,y);ctx.lineTo(layout.labelW+.5,y+row.height-1);ctx.stroke();
+    ctx.fillStyle='#161616';
+    ctx.font=`400 ${row.labelLayout.fontSize}px Arial, Helvetica, sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    const labelStartY=y+(row.height-1)/2-(row.labelLayout.lines.length-1)*row.labelLayout.lineHeight/2;
+    row.labelLayout.lines.forEach((line,lineIndex)=>ctx.fillText(line,1+layout.labelW/2,labelStartY+lineIndex*row.labelLayout.lineHeight,layout.labelW-12));
+    const rowItems=(boardState.items||[]).filter(it=>it.rowId===row.id);
+    let x=layout.labelW+1,line=0,col=0;
+    for(const item of rowItems){
+      if(col>=layout.perRow){col=0;line++;x=layout.labelW+1;}
+      const iy=y+line*layout.cellH;
+      const image=imageCache.get(item.id);
+      ctx.fillStyle=cfg.backgroundColor||'#1a1b16';
+      ctx.fillRect(x,iy,layout.tile,layout.tile);
+      if(image)drawImageFit(ctx,image,x,iy,layout.tile,layout.tile,cfg.imageFit||'cover',item.crop||null);
+      if(cfg.showItemLabels){
+        ctx.fillStyle='rgba(7,9,12,.94)';ctx.fillRect(x,iy+layout.tile,layout.tile,layout.caption);
+        ctx.fillStyle='#f2f4f7';ctx.font='10px Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(item.name||'',x+layout.tile/2,iy+layout.tile+layout.caption/2,layout.tile-6);
+      }
+      x+=layout.tile;col++;
+    }
+    // Black one-pixel row divider.
+    if(row!==layout.rows[layout.rows.length-1]){ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,y+row.height-.5);ctx.lineTo(layout.width,y+row.height-.5);ctx.stroke();}
+    y+=row.height;
+  }
+  // Thin black outside frame, no white separators.
+  ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.strokeRect(.5,.5,layout.width-1,layout.height-1);
+  return canvas;
+}
+function drawImageFit(ctx,img,x,y,w,h,fit,crop=null){
+  if(crop){
+    const sx=clamp(crop.x,0,1)*img.width;
+    const sy=clamp(crop.y,0,1)*img.height;
+    const sw=clamp(crop.w,0.001,1)*img.width;
+    const sh=clamp(crop.h,0.001,1)*img.height;
+    ctx.drawImage(img,sx,sy,Math.min(sw,img.width-sx),Math.min(sh,img.height-sy),x,y,w,h);
+    return;
+  }
+  if(fit==='contain'){
+    const ratio=Math.min(w/img.width,h/img.height);
+    const dw=img.width*ratio,dh=img.height*ratio;
+    ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  }else{
+    const ir=img.width/img.height,tr=w/h;
+    let sx=0,sy=0,sw=img.width,sh=img.height;
+    if(ir>tr){sw=img.height*tr;sx=(img.width-sw)/2;}
+    else{sh=img.width/tr;sy=(img.height-sh)/2;}
+    ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+  }
+}
+function contrastColor(hex){const h=hex.replace('#','');if(h.length!==6)return '#161616';const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return (r*299+g*587+b*114)/1000>160?'#161616':'#ffffff';}
+function clamp(v,min,max){return Math.min(max,Math.max(min,v));}
+function downloadBlob(blob,filename){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
+async function exportImage(boardState,format='image/png',scale=2){
+  const canvas=await renderBoardCanvas(boardState,scale);const ext=format==='image/jpeg'?'jpg':format==='image/webp'?'webp':'png';
+  canvas.toBlob(blob=>{if(!blob){showToast(tr('exportError'));return;}downloadBlob(blob,slug(boardState.title||'tier-list')+'.'+ext);showToast(tr('imageExported'));},format,format==='image/jpeg'?.94:undefined);
+}
+function slug(s){return String(s).toLowerCase().trim().replace(/[^a-zа-яё0-9]+/gi,'-').replace(/^-|-$/g,'')||'tier-list';}
+function openExportModal(boardState){
+  openModal(tr('downloadTitle'),`<div class="control"><label>${tr('format')}</label><select id="exportFormat"><option value="image/png">${tr('pngBest')}</option><option value="image/jpeg">${tr('jpgSmall')}</option><option value="image/webp">${tr('webpCompact')}</option></select></div><div class="control"><label>${tr('resolution')}</label><select id="exportScale"><option value="1">${tr('normal')}</option><option value="2" selected>${tr('high')}</option><option value="3">${tr('maximum')}</option></select></div><p>${tr('exportNote')}</p>`,[{label:tr('cancel'),className:'btn',value:false},{label:tr('downloadAction'),className:'btn primary',value:true}],async ok=>{if(ok){const format=$('exportFormat').value,scale=+$('exportScale').value;await exportImage(boardState,format,scale);}});
+}
+$('downloadMenuBtn').onclick=()=>openExportModal(state);
+$('viewerDownload').onclick=()=>openExportModal(currentViewerState);
+
+async function saveCurrentBoard(){
+  if(!state)return;
+  await requestPersistentStorage();
+  if(!state.title.trim())state.title=tr('defaultBoardTitle');
+  state.updatedAt=Date.now();
+  if(!currentBoardId)currentBoardId=state.id||uid();
+  state.id=currentBoardId;
+  try{
+    const preview=await renderBoardCanvas(state,.38);
+    const previewUrl=preview.toDataURL('image/jpeg',.72);
+    await dbPut('boards',{...deepClone(state),preview:previewUrl});
+    await dbDelete('drafts','active');
+    currentViewerState=await dbGet('boards',currentBoardId);
+    showToast(tr('listSaved'));
+    await openViewer(currentBoardId);
+  }catch(e){console.error(e);showToast(tr('saveError'));}
+}
+$('saveBoardBtn').onclick=saveCurrentBoard;
+$('undoAction').onclick=undoAction;
+$('redoAction').onclick=redoAction;
+$('viewerEdit').onclick=()=>{setPresentationMode(false);openEditor(currentViewerState.id);};
+$('viewerBack').onclick=()=>{showView('library');renderLibrary();};
+$('editorBack').onclick=async()=>{
+  if(await askConfirm(currentLanguage==='en'?'Return to the library?':'Вернуться в библиотеку?',currentLanguage==='en'?'Your changes are saved automatically as a draft. To save this tier list to your library, click “Save”.':'Изменения автоматически сохраняются в черновик. Чтобы сохранить тир-лист в библиотеке, нажми «Сохранить».')){document.body.classList.remove('presentation');showView('library');renderLibrary();}
+};
+
+
+async function exportLibraryBackup(){
+  try{
+    const boards=await dbGetAll('boards');
+    const draft=await dbGet('drafts','active');
+    const payload={format:'TierStudioLibraryBackup',version:1,exportedAt:new Date().toISOString(),boards,draft:draft||null};
+    const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+    downloadBlob(blob,'tier-studio-library-backup.json');
+    showToast(tr('backupLibraryDone'));
+  }catch(err){console.error('[Tier Studio backup]',err);showToast(tr('backupLibraryError'));}
+}
+function putManyInStore(storeName,records){
+  return new Promise((resolve,reject)=>{
+    if(!db){reject(new Error('Database is not open'));return;}
+    const tx=db.transaction(storeName,'readwrite');
+    const store=tx.objectStore(storeName);
+    for(const record of records)store.put(record);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error||new Error('Backup restore failed'));
+    tx.onabort=()=>reject(tx.error||new Error('Backup restore was cancelled'));
+  });
+}
+async function restoreLibraryBackup(file){
+  if(!file)return;
+  try{
+    const payload=JSON.parse(await file.text());
+    if(payload.format!=='TierStudioLibraryBackup'||payload.version!==1||!Array.isArray(payload.boards))throw new Error(tr('invalidBackup'));
+    const valid=payload.boards.every(board=>board&&typeof board.id==='string'&&Array.isArray(board.rows)&&Array.isArray(board.items)&&board.config&&typeof board.config==='object');
+    const draftValid=!payload.draft||(payload.draft.id==='active'&&payload.draft.state&&Array.isArray(payload.draft.state.rows)&&Array.isArray(payload.draft.state.items)&&payload.draft.state.config&&typeof payload.draft.state.config==='object');
+    if(!valid||!draftValid)throw new Error(tr('invalidBackup'));
+    const message=tr('restoreAllConfirm',{count:payload.boards.length})+' '+tr('restoreAllHint');
+    if(!await askConfirm(tr('restoreAllTitle'),message))return;
+    await putManyInStore('boards',payload.boards);
+    if(payload.draft&&payload.draft.id==='active'&&payload.draft.state){
+      const existingDraft=await dbGet('drafts','active');
+      if(!existingDraft)await dbPut('drafts',payload.draft);
+    }
+    renderLibrary();
+    showToast(tr('restoreLibraryDone',{count:payload.boards.length}));
+  }catch(err){console.error('[Tier Studio restore]',err);showToast(err.message===tr('invalidBackup')?tr('invalidBackup'):tr('restoreLibraryError'));}
+}
+$('backupLibraryBtn').onclick=exportLibraryBackup;
+$('restoreLibraryBtn').onclick=()=>$('libraryBackupImport').click();
+$('libraryBackupImport').addEventListener('change',async e=>{const file=e.target.files[0];e.target.value='';await restoreLibraryBackup(file);});
+
+$('exportProject').onclick=()=>{
+  const project={format:'TierStudioProject',version:1,state:deepClone(state)};
+  const blob=new Blob([JSON.stringify(project)],{type:'application/json'});
+  downloadBlob(blob,slug(state.title||'tier-list')+'.tierstudio.json');showToast(tr('projectBackupDownloaded'));
+};
+$('importProjectBtn').onclick=()=>$('projectImport').click();
+$('projectImport').addEventListener('change',async e=>{
+  const file=e.target.files[0];if(!file)return;
+  try{const data=JSON.parse(await file.text());const imported=data.state||data;if(!imported.rows||!imported.items||!imported.config)throw new Error(tr('unsupportedProject'));state=deepClone(imported);state.id=uid();state.createdAt=Date.now();state.updatedAt=Date.now();currentBoardId=null;resetHistory();renderEditor();showToast(tr('projectImported'));}
+  catch(err){console.error(err);showToast(tr('projectImportError'));}e.target.value='';
+});
+
+$('navCreate').onclick=()=>openEditor();$('createFromLibrary').onclick=()=>openEditor();$('emptyCreate').onclick=()=>openEditor();$('navLibrary').onclick=()=>{document.body.classList.remove('presentation');showView('library');renderLibrary();};$('brandHome').onclick=()=>{document.body.classList.remove('presentation');showView('library');renderLibrary();};
+$('createFromLibrary').addEventListener('click',()=>document.body.classList.remove('presentation'));
+
+$('importProjectBtn').onclick=()=>$('projectImport').click();
+
+// Перемещение карточек обратно в нижнюю область и загрузка файлов перетаскиванием.
+$('poolItems').addEventListener('dragover',e=>{
+  if(dragItemId){onItemDragOver(e);return;}
+  if([...e.dataTransfer.types].includes('Files')){e.preventDefault();$('poolItems').classList.add('drag-over');}
+});
+$('poolItems').addEventListener('dragleave',e=>{if(!e.currentTarget.contains(e.relatedTarget))$('poolItems').classList.remove('drag-over');});
+$('poolItems').addEventListener('drop',async e=>{
+  const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  if(files.length){
+    e.preventDefault();$('poolItems').classList.remove('drag-over');let added=0;
+    for(const f of files){try{state.items.push({id:uid(),name:f.name.replace(/\.[^.]+$/,''),src:await readFileAsDataURL(f),rowId:null,crop:null});added++;}catch(err){console.warn(err);}}
+    setDirty();renderPool();renderBoard();showToast(tr('imagesAdded',{count:added}));return;
+  }
+  onItemDrop(e,null,null);
+});
+function setPresentationMode(enabled){
+  document.body.classList.toggle('presentation',!!enabled);
+  const toggle=$('presentationToggle');
+  if(toggle)toggle.textContent=enabled?tr('presentationExit'):tr('presentationToggle');
+  const titleInput=$('boardTitle');
+  if(titleInput)titleInput.readOnly=!!enabled;
+  requestAnimationFrame(updateBoardViewport);
+}
+$('exitPresentation').onclick=()=>setPresentationMode(false);
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('presentation'))setPresentationMode(false);});
+
+// Presentation is a read-only view: no tile actions, rank tools, drag, click or double-click editing.
+const presentationToggle=document.createElement('button');presentationToggle.id='presentationToggle';presentationToggle.className='btn ghost';presentationToggle.textContent=tr('presentationToggle');presentationToggle.onclick=()=>setPresentationMode(!document.body.classList.contains('presentation'));document.querySelector('.editor-actions').insertBefore(presentationToggle,$('saveBoardBtn'));
+
+// Hide hover-only rank palettes when the browser loses focus. Some browsers
+// retain :hover after switching tabs/apps; wait for a real pointer movement
+// after returning before allowing palettes to show again.
+let rankToolsAwaitPointer=false;
+function suspendRankTools(){
+  rankToolsAwaitPointer=true;
+  document.documentElement.classList.add('rank-tools-suspended');
+}
+function resumeRankToolsOnPointer(){
+  if(!rankToolsAwaitPointer || !document.hasFocus())return;
+  rankToolsAwaitPointer=false;
+  document.documentElement.classList.remove('rank-tools-suspended');
+}
+window.addEventListener('blur',suspendRankTools);
+window.addEventListener('focus',suspendRankTools);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)suspendRankTools();
+  else rankToolsAwaitPointer=true;
+});
+window.addEventListener('mouseleave',suspendRankTools);
+document.addEventListener('pointermove',resumeRankToolsOnPointer,{passive:true});
+document.addEventListener('pointerdown',resumeRankToolsOnPointer,true);
+
+// Language switch is local to this browser profile and does not alter saved tier-list content.
+$('langToggle').addEventListener('click',toggleLanguage);
+$('viewerLangToggle').addEventListener('click',toggleLanguage);
+applyLanguage({rerender:false});
+
+// Ask the browser to protect this site's local database from automatic storage eviction.
+// This never prevents the user from explicitly clearing site data, so backups remain important.
+async function requestPersistentStorage(){
+  try{
+    if(!navigator.storage||typeof navigator.storage.persist!=='function')return false;
+    let persisted=await navigator.storage.persisted();
+    if(!persisted){
+      let alreadyAsked=false;
+      try{alreadyAsked=sessionStorage.getItem('tierStudioPersistAsked')==='1';}catch(_e){}
+      if(!alreadyAsked){
+        try{sessionStorage.setItem('tierStudioPersistAsked','1');}catch(_e){}
+        persisted=await navigator.storage.persist();
+      }
+    }
+    document.documentElement.dataset.storagePersistence=persisted?'persistent':'best-effort';
+    return persisted;
+  }catch(err){console.info('[Tier Studio] Persistent storage request unavailable:',err);return false;}
+}
+
+// Start screen and local database.
+(async()=>{
+  try{
+    await openDatabase();
+    applyLanguage({rerender:false});
+    renderLibrary();
+  }catch(e){
+    console.error(e);
+    $('libraryEmpty').style.display='block';
+    showToast(tr('storageError'));
+  }
+})();
+
+})();
+</script>
+</body>
+</html>
