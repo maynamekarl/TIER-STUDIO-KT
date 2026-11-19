@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#111318">
 <meta name="application-name" content="Tier Studio">
 <title>Tier Studio — Personal Tier List Maker</title>
+<meta name="tier-studio-version" content="8">
 <meta name="description" content="A private, local tier list editor with rank rows, image cropping, a personal library and export.">
 <style>
 :root{
@@ -230,7 +231,7 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 .tier-row{overflow:visible}
 .tier-label{flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 5px!important;overflow:visible;min-height:var(--row-height,80px)}
 .tier-label-text{display:flex;align-items:center;justify-content:center;width:100%;min-height:0;text-align:center;white-space:pre-line;overflow-wrap:anywhere;word-break:normal;line-height:1.1;color:#161616;user-select:text;pointer-events:auto}
-.tier-tools{position:absolute;z-index:40;left:-116px;right:auto;top:50%;bottom:auto;display:grid;grid-template-columns:repeat(4,25px);grid-template-rows:repeat(2,25px);gap:3px;width:max-content;padding:5px;background:rgba(12,16,24,.96);border:1px solid rgba(160,184,220,.34);border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transform:translateY(-50%);transition:opacity .14s ease,transform .14s ease}
+.tier-tools{position:absolute;z-index:40;left:-116px;right:auto;top:50%;bottom:auto;display:grid;grid-template-columns:repeat(5,25px);grid-template-rows:repeat(2,25px);gap:3px;width:max-content;padding:5px;background:rgba(12,16,24,.96);border:1px solid rgba(160,184,220,.34);border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transform:translateY(-50%);transition:opacity .14s ease,transform .14s ease}
 .tier-row:hover .tier-tools,.tier-tools:focus-within{opacity:1;pointer-events:auto;transform:translateY(-50%)}
 .tier-tools button,.tier-tools .color-tool{position:relative;width:25px;height:25px;min-width:25px;padding:0;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:#263346;color:#f5f8ff;font-size:13px;line-height:1;cursor:pointer;transition:background .12s,border-color .12s}
 .tier-tools button:hover,.tier-tools .color-tool:hover{background:#3b506e;border-color:rgba(150,194,255,.65)}
@@ -239,7 +240,10 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 .tier-tools .row-clear{color:#ffd7a0}
 .tier-tools .color-tool{overflow:hidden;background:linear-gradient(135deg,#29364a,#1a2534)}
 .tier-tools .color-tool span{pointer-events:none;font-size:14px}
+.tier-tools .text-color-tool span{font:900 16px/1 Arial,Helvetica,sans-serif;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:2px}
 .tier-tools .color-tool input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;padding:0;border:0;cursor:pointer}
+.tier-tools .text-bold-tool{font:900 15px/1 Arial,Helvetica,sans-serif!important}
+.tier-tools .text-bold-tool.is-active{background:#405d87!important;border-color:#9bbcff!important;box-shadow:inset 0 0 0 1px rgba(205,224,255,.22)}
 .tier-label-text{cursor:default}
 .crop-modal .modal-actions .btn{touch-action:manipulation}
 @media(hover:none){
@@ -248,7 +252,7 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 }
 @media(max-width:820px){
   .board-shell{padding-left:118px;max-width:100%;overflow-x:auto;overflow-y:hidden}
-  .tier-tools{grid-template-columns:repeat(4,26px);grid-template-rows:repeat(2,26px);gap:3px;padding:5px;left:-120px}
+  .tier-tools{grid-template-columns:repeat(5,26px);grid-template-rows:repeat(2,26px);gap:3px;padding:5px;left:-120px}
   .tier-tools button,.tier-tools .color-tool{width:26px;height:26px;min-width:26px;font-size:14px}
   .tier-label{align-items:center!important;padding:5px!important}
 }
@@ -264,17 +268,17 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 
 
 /* Keep the side control palette reachable even while the board is horizontally scrolled. */
-.board-shell{padding-left:132px!important;}
-.tier-tools{position:sticky!important;left:-132px!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 121px!important;width:121px!important;height:65px!important;margin-left:-132px!important;margin-right:11px!important;align-self:center!important;transform:none!important;z-index:50!important;}
+.board-shell{padding-left:160px!important;}
+.tier-tools{position:sticky!important;left:-160px!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 149px!important;width:149px!important;height:65px!important;margin-left:-160px!important;margin-right:11px!important;align-self:center!important;transform:none!important;z-index:50!important;}
 .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
 @media(max-width:820px){
-  .board-shell{padding-left:136px!important;}
-  .tier-tools{left:-136px!important;flex-basis:125px!important;width:125px!important;height:67px!important;margin-left:-136px!important;margin-right:11px!important;transform:none!important;}
+  .board-shell{padding-left:160px!important;}
+  .tier-tools{left:-160px!important;flex-basis:154px!important;width:154px!important;height:67px!important;margin-left:-160px!important;margin-right:6px!important;transform:none!important;}
   .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
 }
 @media(max-width:560px){
-  .board-shell{padding-left:136px!important;}
-  .tier-tools{left:-136px!important;flex-basis:125px!important;width:125px!important;height:67px!important;margin-left:-136px!important;margin-right:11px!important;transform:none!important;}
+  .board-shell{padding-left:160px!important;}
+  .tier-tools{left:-160px!important;flex-basis:154px!important;width:154px!important;height:67px!important;margin-left:-160px!important;margin-right:6px!important;transform:none!important;}
   .tier-row:hover .tier-tools,.tier-tools:focus-within{transform:none!important;}
 }
 
@@ -288,7 +292,7 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 .tier-row:hover{z-index:3}
 /* Invisible bridge fills the small gap between the row and its side toolbar.
    Since it belongs to the row, the row stays hovered while the pointer crosses the gap. */
-.tier-row::before{content:"";position:absolute;left:-148px;top:0;width:148px;height:100%;z-index:39;background:transparent;pointer-events:auto}
+.tier-row::before{content:"";position:absolute;left:-176px;top:0;width:176px;height:100%;z-index:39;background:transparent;pointer-events:auto}
 .tier-tools{z-index:50!important}
 .history-btn{min-width:42px}
 .history-btn:disabled{opacity:.34;cursor:not-allowed;filter:saturate(.4)}
@@ -297,7 +301,7 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
 .presentation .item-tile{cursor:default!important}
 .presentation #board{cursor:default!important}
 @media(max-width:560px){
-  .tier-row::before{left:-148px;width:148px}
+  .tier-row::before{left:-176px;width:176px}
   .history-btn{padding-left:7px!important;padding-right:7px!important}
 }
 
@@ -335,7 +339,7 @@ select{width:100%}.inline-control{display:flex;align-items:center;justify-conten
   .history-actions{display:flex;gap:6px;width:100%;grid-column:1/-1;}
   .history-actions .btn{flex:1 1 0;width:auto!important;min-width:0;padding:9px 6px!important;font-size:11px!important;}
   .row-grip{display:none!important;}
-  .tier-tools{grid-template-columns:repeat(4,26px)!important;grid-template-rows:repeat(2,26px)!important;}
+  .tier-tools{grid-template-columns:repeat(5,26px)!important;grid-template-rows:repeat(2,26px)!important;}
   .tier-tools button,.tier-tools .color-tool{min-width:26px!important;width:26px!important;height:26px!important;}
   .crop-modal{height:min(95dvh,900px);max-height:95dvh;width:calc(100vw - 12px);padding:11px;}
   .crop-modal #modalContent{overflow-y:auto!important;min-height:0;}
@@ -609,7 +613,7 @@ const I18N = {
     open:'Open', rename:'Rename', remove:'Remove',
     emptyPool:'All uploaded images are ranked, or there are no images yet. Drop files here or use “Add Images”.',
     rankDragHint:'Drag this rank with your mouse. On touch screens, use the ↑ and ↓ buttons.',
-    rankRenameHint:'Edit rank name', rankColorHint:'Change rank color', addRankBelow:'Add rank below', moveRankUp:'Move rank up', moveRankDown:'Move rank down',
+    rankRenameHint:'Edit rank name', rankColorHint:'Change rank color', rankTextColorHint:'Change rank text color', rankBoldHint:'Toggle bold rank text', addRankBelow:'Add rank below', moveRankUp:'Move rank up', moveRankDown:'Move rank down',
     clearRank:'Move all images in this rank to the unranked area', deleteRank:'Delete rank',
     tileDragHint:'Drag to move. Double-click to rename.', cropImage:'Choose image crop', renameImage:'Rename image', moveImageOther:'Move image to another rank',
     rankDeleted:'The rank “{name}” will be deleted. Its images will return to the unranked area.',
@@ -688,7 +692,7 @@ const I18N = {
     open:'Открыть', rename:'Переименовать', remove:'Удалить',
     emptyPool:'Все загруженные изображения распределены или пока не добавлены. Перетащи файлы сюда либо воспользуйся кнопкой «Добавить изображения».',
     rankDragHint:'Перетащи ранг мышью. На телефоне используй стрелки ↑ и ↓.',
-    rankRenameHint:'Изменить название ранга', rankColorHint:'Изменить цвет ранга', addRankBelow:'Добавить ранг ниже', moveRankUp:'Поднять ранг', moveRankDown:'Опустить ранг',
+    rankRenameHint:'Изменить название ранга', rankColorHint:'Изменить цвет ранга', rankTextColorHint:'Изменить цвет текста ранга', rankBoldHint:'Сделать текст жирным / обычным', addRankBelow:'Добавить ранг ниже', moveRankUp:'Поднять ранг', moveRankDown:'Опустить ранг',
     clearRank:'Переместить все изображения ранга в нижнюю область', deleteRank:'Удалить ранг',
     tileDragHint:'Перетащи, чтобы переместить. Двойной щелчок — изменить название.', cropImage:'Выбрать область изображения', renameImage:'Переименовать изображение', moveImageOther:'Переместить изображение в другой ранг',
     rankDeleted:'Ранг «{name}» будет удалён. Его изображения вернутся в нижнюю область.',
@@ -810,7 +814,7 @@ function formatCount(n,type){
 function defaultState(){
   return {
     id: uid(), title: tr('defaultBoardTitle'), createdAt: Date.now(), updatedAt: Date.now(),
-    rows: DEFAULT_ROWS.map(r => ({id:uid(), label:r.label, color:r.color})),
+    rows: DEFAULT_ROWS.map(r => ({id:uid(), label:r.label, color:r.color, textColor:'#161616', bold:false})),
     items: [],
     config: {backgroundColor:'#1a1b16', backgroundImage:null, backgroundOpacity:100,
       boardWidth:960, rowHeight:80, tileSize:80, imageFit:'cover', showItemLabels:false, labelWidth:100}
@@ -1083,10 +1087,12 @@ function renderBoard(){
     const rowEl=document.createElement('div');rowEl.className='tier-row';rowEl.dataset.rowId=row.id;
     const label=document.createElement('div');label.className='tier-label';label.style.background=row.color;
 
-    const labelMetrics=getRankLabelLayout(String(row.label||''),88,Math.max(30,(state.config.rowHeight||80)-10));
+    const labelMetrics=getRankLabelLayout(String(row.label||''),88,Math.max(30,(state.config.rowHeight||80)-10),!!row.bold);
     const labelText=document.createElement('div');labelText.className='tier-label-text';
     labelText.textContent=labelMetrics.lines.join('\n');
     labelText.style.fontSize=labelMetrics.fontSize+'px';
+    labelText.style.color=row.textColor||'#161616';
+    labelText.style.fontWeight=row.bold?'700':'400';
     labelText.title=String(row.label||'');
     label.appendChild(labelText);
 
@@ -1140,12 +1146,39 @@ function renderBoard(){
     color.addEventListener('input',()=>{row.color=color.value;label.style.background=row.color;setDirty();});
     colorTool.append(colorIcon,color);
 
+    const textColorTool=document.createElement('label');
+    textColorTool.className='color-tool text-color-tool';
+    textColorTool.title=tr('rankTextColorHint');
+    textColorTool.setAttribute('aria-label',tr('rankTextColorHint'));
+    const textColorIcon=document.createElement('span');
+    textColorIcon.textContent='A';
+    const textColor=document.createElement('input');
+    textColor.type='color';
+    textColor.value=row.textColor||'#161616';
+    textColor.setAttribute('aria-label',tr('rankTextColorHint'));
+    textColor.addEventListener('click',e=>e.stopPropagation());
+    textColor.addEventListener('input',()=>{
+      row.textColor=textColor.value;
+      labelText.style.color=row.textColor;
+      setDirty();
+    });
+    textColorTool.append(textColorIcon,textColor);
+
+    const bold=toolBtn('B',tr('rankBoldHint'),()=>{
+      row.bold=!row.bold;
+      setDirty();
+      renderBoard();
+    });
+    bold.classList.add('text-bold-tool');
+    bold.setAttribute('aria-pressed',String(!!row.bold));
+    bold.classList.toggle('is-active',!!row.bold);
+
     const add=toolBtn('+',tr('addRankBelow'),()=>addRow(index+1));
     const up=toolBtn('↑',tr('moveRankUp'),()=>moveRow(index,-1));up.disabled=index===0;
     const down=toolBtn('↓',tr('moveRankDown'),()=>moveRow(index,1));down.disabled=index===state.rows.length-1;
     const clear=toolBtn('⌫',tr('clearRank'),()=>clearRow(row.id));clear.classList.add('row-clear');
     const del=toolBtn('×',tr('deleteRank'),()=>deleteRow(row.id));del.classList.add('row-delete');
-    tools.append(grip,editLabel,colorTool,add,up,down,clear,del);
+    tools.append(grip,editLabel,colorTool,textColorTool,bold,add,up,down,clear,del);
 
     rowEl.addEventListener('dragover',e=>{if(dragRowId && dragRowId!==row.id){e.preventDefault();e.dataTransfer.dropEffect='move';rowEl.classList.add('row-drop-over');}});
     rowEl.addEventListener('dragleave',e=>{if(!rowEl.contains(e.relatedTarget))rowEl.classList.remove('row-drop-over');});
@@ -1249,7 +1282,7 @@ function reorderRowById(sourceId,targetId,after=false){
 }
 
 function moveRow(index,dir){const next=index+dir;if(next<0||next>=state.rows.length)return;const [r]=state.rows.splice(index,1);state.rows.splice(next,0,r);setDirty();renderBoard();}
-function addRow(index=state.rows.length){const colors=['#ff7f7f','#ffbf7f','#ffdf7f','#feff7f','#beff7f','#7eff80','#7fffff','#7fbfff','#a78bfa'];const row={id:uid(),label:tr('newRankName'),color:colors[state.rows.length%colors.length]};state.rows.splice(Math.min(index,state.rows.length),0,row);setDirty();renderBoard();showToast(tr('newRankAdded'));}
+function addRow(index=state.rows.length){const colors=['#ff7f7f','#ffbf7f','#ffdf7f','#feff7f','#beff7f','#7eff80','#7fffff','#7fbfff','#a78bfa'];const row={id:uid(),label:tr('newRankName'),color:colors[state.rows.length%colors.length],textColor:'#161616',bold:false};state.rows.splice(Math.min(index,state.rows.length),0,row);setDirty();renderBoard();showToast(tr('newRankAdded'));}
 function clearRow(rowId){const count=state.items.filter(it=>it.rowId===rowId).length;state.items.forEach(it=>{if(it.rowId===rowId)it.rowId=null;});setDirty();renderBoard();renderPool();showToast(tr('movedToUnranked',{count}));}
 async function deleteRow(rowId){if(state.rows.length<=1){showToast(tr('noRanksLeft'));return;}const row=state.rows.find(r=>r.id===rowId);if(!await askConfirm(tr('confirmDeleteRank'),tr('rankDeleted',{name:row?.label||''})))return;state.items.forEach(it=>{if(it.rowId===rowId)it.rowId=null;});state.rows=state.rows.filter(r=>r.id!==rowId);setDirty();renderBoard();renderPool();}
 async function renameItem(id){const item=state.items.find(x=>x.id===id);if(!item)return;const name=await askInput(tr('renameImage'),currentLanguage==='en'?'You can leave this blank.':'Можно оставить пустым.',item.name||'');if(name===null)return;item.name=name.trim();setDirty();renderBoard();renderPool();}
@@ -1579,12 +1612,12 @@ function wrapRankTextLines(ctx,text,maxWidth){
   if(line)lines.push(line);
   return lines.length?lines:[''];
 }
-function getRankLabelLayout(text,maxWidth,maxHeight){
+function getRankLabelLayout(text,maxWidth,maxHeight,bold=false){
   const canvas=document.createElement('canvas');
   const ctx=canvas.getContext('2d');
   let best={fontSize:7,lines:[''],lineHeight:7.7,height:7.7};
   for(let size=14;size>=7;size-=.5){
-    ctx.font=`400 ${size}px Arial, Helvetica, sans-serif`;
+    ctx.font=`${bold?'700':'400'} ${size}px Arial, Helvetica, sans-serif`;
     const lines=wrapRankTextLines(ctx,text,Math.max(20,maxWidth));
     const lineHeight=size*1.12;
     const height=lines.length*lineHeight;
@@ -1607,10 +1640,10 @@ function calculateLayout(boardState){
   const rows=(boardState.rows||[]).map(r=>{
     const count=(boardState.items||[]).filter(i=>i.rowId===r.id).length;
     const imageLines=Math.max(1,Math.ceil(count/perRow));
-    const initialLabel=getRankLabelLayout(String(r.label||''),labelW-12,(cfg.rowHeight||80)-10);
+    const initialLabel=getRankLabelLayout(String(r.label||''),labelW-12,(cfg.rowHeight||80)-10,!!r.bold);
     const labelHeight=Math.ceil(initialLabel.height+10);
     const height=Math.max(cfg.rowHeight||80,imageLines*cellH+1,labelHeight);
-    const labelLayout=getRankLabelLayout(String(r.label||''),labelW-12,height-10);
+    const labelLayout=getRankLabelLayout(String(r.label||''),labelW-12,height-10,!!r.bold);
     return {...r,height,labelLayout};
   });
   const titleH=0;
@@ -1673,8 +1706,8 @@ async function renderBoardCanvas(boardState,scale=2){
     ctx.fillRect(1,y,layout.labelW-1,row.height-1);
     ctx.strokeStyle='#000';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(layout.labelW+.5,y);ctx.lineTo(layout.labelW+.5,y+row.height-1);ctx.stroke();
-    ctx.fillStyle='#161616';
-    ctx.font=`400 ${row.labelLayout.fontSize}px Arial, Helvetica, sans-serif`;
+    ctx.fillStyle=row.textColor||'#161616';
+    ctx.font=`${row.bold?'700':'400'} ${row.labelLayout.fontSize}px Arial, Helvetica, sans-serif`;
     ctx.textAlign='center';ctx.textBaseline='middle';
     const labelStartY=y+(row.height-1)/2-(row.labelLayout.lines.length-1)*row.labelLayout.lineHeight/2;
     row.labelLayout.lines.forEach((line,lineIndex)=>ctx.fillText(line,1+layout.labelW/2,labelStartY+lineIndex*row.labelLayout.lineHeight,layout.labelW-12));
