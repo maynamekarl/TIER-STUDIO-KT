@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#111318">
 <meta name="application-name" content="Tier Studio">
 <title>Tier Studio — Personal Tier List Maker</title>
-<meta name="tier-studio-version" content="8">
+<meta name="tier-studio-version" content="10">
 <meta name="description" content="A private, local tier list editor with rank rows, image cropping, a personal library and export.">
 <style>
 :root{
@@ -48,7 +48,7 @@ h1{font-size:clamp(30px,4vw,44px);letter-spacing:-.045em;margin:9px 0 8px;line-h
 .library-thumb img{width:100%;height:100%;object-fit:contain}
 .library-placeholder{color:#626c79;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .library-info{padding:14px 15px 13px}.library-title{font-size:15px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.library-meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between;gap:10px}
-.card-actions{display:flex;gap:7px;padding:0 15px 14px}.card-actions .btn{flex:1}
+.card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 15px 14px}.card-actions .btn{width:100%;min-width:0}
 .empty-state{border:1px dashed #3a414d;border-radius:16px;background:rgba(255,255,255,.015);padding:58px 24px;text-align:center;max-width:760px;margin:20px auto}
 .empty-icon{width:64px;height:64px;margin:0 auto 18px;border:1px solid #454d58;border-radius:18px;display:grid;place-items:center;font-size:26px;color:var(--accent2);background:#1a1d24}
 .empty-state h2{margin:0 0 8px;font-size:22px}.empty-state p{color:var(--muted);font-size:13px;line-height:1.65;max-width:420px;margin:0 auto 20px}
@@ -401,6 +401,82 @@ body.row-drag-active .row-grip{cursor:grabbing!important;}
 .library-head-actions .btn{overflow-wrap:anywhere}
 @media(max-width:560px){.library-head-actions .btn{font-size:10px;line-height:1.25}.viewer-head .top-actions{gap:6px}.viewer-head .top-actions .btn{white-space:normal}}
 
+
+
+/* ===== V9: unified HSV color controls, editable range values and duplicate cards ===== */
+.range-heading,.color-control-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;min-width:0}
+.range-heading>label,.color-control-head>label{margin:0!important;min-width:0;flex:1 1 auto;color:#c1c8d1;font-size:12px}
+.range-value-control{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.range-number{width:82px!important;min-width:0!important;height:30px;padding:5px 22px 5px 9px!important;text-align:left!important;font-size:12px!important;font-variant-numeric:tabular-nums}
+.range-heading+.range-number,.control>.range-heading+input[type=range]{display:block}
+.range-heading+input[type=range]{width:100%;margin:0}
+.range-number:focus{border-color:var(--accent)!important;outline:2px solid rgba(113,217,237,.25)!important}
+.background-color-button{width:42px;height:32px;flex:0 0 42px;border:1px solid #536783;border-radius:8px;background:#1a1b16;color:white;display:grid;place-items:center;box-shadow:inset 0 0 0 3px rgba(0,0,0,.18);font-size:17px}
+.background-color-button span{filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.tier-tools .row-fill-color{background:linear-gradient(145deg,var(--row-color-preview,#ff7f7f),#1c2939)!important}
+.tier-tools .row-fill-color span{filter:drop-shadow(0 1px 2px rgba(0,0,0,.85))}
+.tier-tools .text-color-tool{font:900 15px/1 Arial,Helvetica,sans-serif!important;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px;color:#fff!important;text-shadow:0 1px 2px #000,0 0 2px #000}
+.tier-tools .text-bold-tool{font-weight:900!important}
+.card-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.card-actions .btn{min-height:33px;white-space:normal;line-height:1.2;overflow-wrap:anywhere}
+.color-modal{width:min(500px,96vw);max-height:min(90vh,760px);overflow:auto;padding:18px}
+.color-modal #modalContent{min-width:0}
+.color-picker-editor{display:flex;flex-direction:column;gap:15px;min-width:0}
+.color-picker-preview-row{display:flex;align-items:center;gap:13px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#111823}
+.color-picker-preview{width:64px;height:52px;flex:0 0 64px;border-radius:8px;border:1px solid rgba(255,255,255,.28);background:#161616;box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
+.color-picker-preview-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.color-picker-preview-meta strong{font-size:16px;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.color-picker-preview-meta span{font-size:11px;color:var(--muted)}
+.color-control{display:flex;flex-direction:column;gap:2px;min-width:0}
+.color-control-head{margin-bottom:4px}
+.color-control input[type=range]{width:100%;height:24px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;touch-action:pan-y}
+.color-control input[type=range]::-webkit-slider-runnable-track{height:9px;border-radius:99px;background:var(--range-gradient,linear-gradient(to right,#777,#ddd));border:1px solid rgba(255,255,255,.16)}
+.color-control input[type=range]::-moz-range-track{height:9px;border-radius:99px;background:var(--range-gradient,linear-gradient(to right,#777,#ddd));border:1px solid rgba(255,255,255,.16)}
+.color-control input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:19px;height:19px;margin-top:-6px;border:2px solid #fff;border-radius:50%;background:#243447;box-shadow:0 1px 4px rgba(0,0,0,.55)}
+.color-control input[type=range]::-moz-range-thumb{width:16px;height:16px;border:2px solid #fff;border-radius:50%;background:#243447;box-shadow:0 1px 4px rgba(0,0,0,.55)}
+.color-control .hue-range::-webkit-slider-runnable-track{background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.color-control .hue-range::-moz-range-track{background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.color-hex-row{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;padding-top:4px}
+.color-hex-row label{font-size:12px;color:#c1c8d1}
+.color-hex-row input{width:100%;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase}
+.color-eyedropper{width:100%;min-height:38px}
+.color-modal .modal-actions{margin-top:15px}
+.color-modal .modal-actions .btn{min-width:105px}
+@media(max-width:560px){
+  .range-number{width:76px!important;height:32px;padding:5px 21px 5px 8px!important;font-size:13px!important}
+  .range-heading>label,.color-control-head>label{font-size:12px}
+  .card-actions{gap:6px!important;padding-left:12px!important;padding-right:12px!important}
+  .card-actions .btn{font-size:10px!important;padding:8px 5px!important;min-height:36px}
+  .color-modal{width:calc(100vw - 16px);max-height:94dvh;padding:13px;border-radius:13px}
+  .color-picker-editor{gap:13px}
+  .color-picker-preview{width:58px;height:48px;flex-basis:58px}
+  .color-control input[type=range]{height:30px}
+  .color-control input[type=range]::-webkit-slider-runnable-track{height:10px}
+  .color-control input[type=range]::-moz-range-track{height:10px}
+  .color-control input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-7px}
+  .color-control input[type=range]::-moz-range-thumb{width:19px;height:19px}
+  .color-modal .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .color-modal .modal-actions .btn{width:100%;min-width:0;min-height:42px}
+}
+@media(max-width:820px){
+  .tier-tools{grid-template-columns:repeat(5,26px)!important;grid-template-rows:repeat(2,26px)!important}
+  .tier-tools button,.tier-tools .color-tool{width:26px!important;height:26px!important;min-width:26px!important}
+}
+@media(max-width:560px){
+  .tier-tools{grid-template-columns:repeat(5,25px)!important;grid-template-rows:repeat(2,25px)!important;width:154px!important;flex-basis:154px!important;height:67px!important}
+  .tier-tools button,.tier-tools .color-tool{width:25px!important;height:25px!important;min-width:25px!important}
+  .board-shell{padding-left:160px!important}
+}
+
+
+/* V10 fixes: remove the rank-toolbar gutter in mobile overview and presentation fit. */
+.board-shell.mobile-fit-mode,.board-shell.presentation-fit-mode{padding:0!important;}
+
+/* Keep numeric values clear of desktop spinner arrows while retaining native steppers. */
+.range-value-control .range-number{padding-right:22px!important;padding-left:9px!important;text-align:left!important;}
+@media(max-width:560px){
+  .range-value-control .range-number{padding-right:21px!important;padding-left:8px!important;}
+}
 </style>
 </head>
 <body>
@@ -475,21 +551,21 @@ body.row-drag-active .row-grip{cursor:grabbing!important;}
         <div class="panel-section">
           <div class="panel-title">Вид изображений</div>
           <div class="control"><label for="imageFit">Отображение по умолчанию</label><select id="imageFit"><option value="cover">Квадрат — обрезать по краям</option><option value="contain">Полностью — вписать целиком</option></select><div class="setting-note">Для точного выбора области нажми ✂ на самой фотографии.</div></div>
-          <div class="control"><label for="tileSize">Размер плитки <span id="tileSizeVal">80 px</span></label><input type="range" id="tileSize" min="40" max="176" step="4" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetTileSize" title="Вернуть размер плитки по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <div class="control"><div class="range-heading"><label for="tileSize">Размер плитки</label><div class="range-value-control"><input class="range-number" type="number" id="tileSizeNumber" min="40" max="176" step="1" value="80" inputmode="numeric" aria-label="Размер плитки в пикселях"><span>px</span></div></div><input type="range" id="tileSize" min="40" max="176" step="1" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetTileSize" title="Вернуть размер плитки по умолчанию"><span>↺</span> Сбросить</button></div></div>
           <label class="checkline"><input type="checkbox" id="showItemLabels"> Показывать подписи под фото</label>
         </div>
         <div class="panel-section">
           <div class="panel-title">Размер тир-листа</div>
-          <div class="control"><label for="boardWidth">Ширина <span id="boardWidthVal">960 px</span></label><input type="range" id="boardWidth" min="600" max="1500" step="8" value="960"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetBoardWidth" title="Вернуть ширину по умолчанию"><span>↺</span> Сбросить</button></div></div>
-          <div class="control"><label for="rowHeight">Высота строки <span id="rowHeightVal">80 px</span></label><input type="range" id="rowHeight" min="60" max="240" step="1" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetRowHeight" title="Вернуть высоту строки по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <div class="control"><div class="range-heading"><label for="boardWidth">Ширина</label><div class="range-value-control"><input class="range-number" type="number" id="boardWidthNumber" min="600" max="1500" step="1" value="920" inputmode="numeric" aria-label="Ширина тир-листа в пикселях"><span>px</span></div></div><input type="range" id="boardWidth" min="600" max="1500" step="1" value="920"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetBoardWidth" title="Вернуть ширину по умолчанию"><span>↺</span> Сбросить</button></div></div>
+          <div class="control"><div class="range-heading"><label for="rowHeight">Высота строки</label><div class="range-value-control"><input class="range-number" type="number" id="rowHeightNumber" min="60" max="240" step="1" value="80" inputmode="numeric" aria-label="Высота строки в пикселях"><span>px</span></div></div><input type="range" id="rowHeight" min="60" max="240" step="1" value="80"><div class="range-reset-line"><button class="reset-setting-btn" type="button" id="resetRowHeight" title="Вернуть высоту строки по умолчанию"><span>↺</span> Сбросить</button></div></div>
           <div class="setting-note">Строка автоматически увеличивается, если в ней не помещаются все изображения. Фон автоматически масштабируется под всю доску при изменении её размеров.</div>
         </div>
         <div class="panel-section">
           <div class="panel-title">Фон</div>
-          <div class="inline-control"><label style="margin:0;font-size:12px;color:#c1c8d1">Цвет фона</label><input type="color" id="backgroundColor" value="#1a1b16"></div>
+          <div class="inline-control"><label style="margin:0;font-size:12px;color:#c1c8d1" for="backgroundColorBtn">Цвет фона</label><button class="background-color-button" type="button" id="backgroundColorBtn" aria-label="Выбрать цвет фона" title="Выбрать цвет фона"><span>▧</span></button></div>
           <label class="upload-box upload-box-compact" for="backgroundUpload" style="margin-top:9px"><span class="upload-glyph">＋</span><strong>Загрузить фон</strong><span>Изображение на задний план</span></label>
           <input class="hidden-input" type="file" id="backgroundUpload" accept="image/png,image/jpeg,image/webp">
-          <div id="backgroundImageActions" style="display:none;margin-top:7px"><button class="btn small danger" id="removeBackground">Удалить изображение фона</button><div class="control"><label for="backgroundOpacity">Прозрачность фона <span id="backgroundOpacityVal">22%</span></label><input type="range" id="backgroundOpacity" min="5" max="100" value="22"></div></div>
+          <div id="backgroundImageActions" style="display:none;margin-top:7px"><button class="btn small danger" id="removeBackground">Удалить изображение фона</button><div class="control"><div class="range-heading"><label for="backgroundOpacity">Прозрачность фона</label><div class="range-value-control"><input class="range-number" type="number" id="backgroundOpacityNumber" min="5" max="100" step="1" value="22" inputmode="numeric" aria-label="Прозрачность фона в процентах"><span>%</span></div></div><input type="range" id="backgroundOpacity" min="5" max="100" step="1" value="22"></div></div>
         </div>
         <div class="panel-section">
           <div class="panel-title">Ранги</div>
@@ -569,6 +645,8 @@ const I18N = {
     libraryEyebrow:'PERSONAL WORKSPACE', libraryTitle:'My Library',
     librarySubtitle:'Your tier lists are stored in this browser. Open, edit and download them whenever you need.',
     createNew:'＋ New Tier List', backupLibrary:'⇩ Back Up Library', restoreLibrary:'⇧ Restore Library',
+    duplicate:'Duplicate', copySuffix:' (Copy)', duplicateHint:'Create an independent copy of this tier list.',
+    colorEditorTitle:'Choose color', hue:'Hue', saturation:'Saturation', brightness:'Brightness', hexColor:'HEX color', eyedropper:'Pick color from screen',
     emptyTitle:'Nothing here yet', emptyText:'Create your first tier list, add images, arrange them into ranks and save it to your library.',
     createFirst:'＋ Create Your First Tier List', libraryFooter:'Stored in this browser • No account required • Back up your library to keep a copy outside the browser.',
     defaultBoardTitle:'My tier list', backToLibrary:'Back to library', resetLayout:'↺ Reset Layout', resetLayoutTitle:'Move all images back to the unranked area',
@@ -648,6 +726,8 @@ const I18N = {
     libraryEyebrow:'ЛИЧНОЕ ПРОСТРАНСТВО', libraryTitle:'Моя библиотека',
     librarySubtitle:'Все твои тир-листы хранятся в этом браузере. Открывай, редактируй и скачивай их в любое время.',
     createNew:'＋ Новый тир-лист', backupLibrary:'⇩ Резервная копия библиотеки', restoreLibrary:'⇧ Восстановить библиотеку',
+    duplicate:'Дублировать', copySuffix:' (копия)', duplicateHint:'Создать независимую копию этого тир-листа.',
+    colorEditorTitle:'Выбор цвета', hue:'Тон', saturation:'Насыщенность', brightness:'Яркость', hexColor:'Цвет HEX', eyedropper:'Взять цвет с экрана',
     emptyTitle:'Здесь пока пусто', emptyText:'Создай первый тир-лист, добавь изображения, распредели их по рангам и сохрани результат в своей библиотеке.',
     createFirst:'＋ Создать первый тир-лист', libraryFooter:'Хранится в этом браузере • Без регистрации • Создавай резервную копию, чтобы сохранить её вне браузера.',
     defaultBoardTitle:'Мой тир-лист', backToLibrary:'Назад в библиотеку', resetLayout:'↺ Сбросить раскладку', resetLayoutTitle:'Вернуть все изображения в нижнюю область',
@@ -781,6 +861,7 @@ function applyLanguage({rerender=true}={}){
     ['resetTileSize','resetBoardWidth','resetRowHeight'].forEach(id=>{const b=$(id);if(b){b.lastChild.textContent=' '+tr('reset');}});
     setElementTitle('resetTileSize','resetTile');setElementTitle('resetBoardWidth','resetWidth');setElementTitle('resetRowHeight','resetRowHeight');
     const bgLabel=side.querySelector('.inline-control label');if(bgLabel)bgLabel.textContent=tr('backgroundColor');
+    setElementTitle('backgroundColorBtn','backgroundColor');const bgButton=$('backgroundColorBtn');if(bgButton)bgButton.setAttribute('aria-label',tr('backgroundColor'));
     const bgUpload=side.querySelector('label[for="backgroundUpload"]');if(bgUpload){bgUpload.querySelector('strong').textContent=tr('uploadBackground');bgUpload.querySelectorAll('span')[1].textContent=tr('backgroundImage');}
     setElementText('removeBackground','removeBackground');setLeadingLabelText('label[for="backgroundOpacity"]','backgroundOpacity');
     setElementText('addTierBtn','addRank');setElementText('importProjectBtn','importProject');
@@ -817,7 +898,7 @@ function defaultState(){
     rows: DEFAULT_ROWS.map(r => ({id:uid(), label:r.label, color:r.color, textColor:'#161616', bold:false})),
     items: [],
     config: {backgroundColor:'#1a1b16', backgroundImage:null, backgroundOpacity:100,
-      boardWidth:960, rowHeight:80, tileSize:80, imageFit:'cover', showItemLabels:false, labelWidth:100}
+      boardWidth:920, rowHeight:80, tileSize:80, imageFit:'cover', showItemLabels:false, labelWidth:100}
   };
 }
 
@@ -963,8 +1044,9 @@ function renderLibrary(){
       const actions=document.createElement('div');actions.className='card-actions';
       const open=document.createElement('button');open.className='btn small';open.textContent=tr('open');open.onclick=(e)=>{e.stopPropagation();openViewer(board.id)};
       const edit=document.createElement('button');edit.className='btn small';edit.textContent=tr('edit');edit.onclick=(e)=>{e.stopPropagation();openEditor(board.id)};
+      const duplicate=document.createElement('button');duplicate.className='btn small';duplicate.textContent=tr('duplicate');duplicate.title=tr('duplicateHint');duplicate.onclick=(e)=>{e.stopPropagation();duplicateBoard(board.id)};
       const remove=document.createElement('button');remove.className='btn small danger';remove.textContent=tr('deleteAction');remove.onclick=async(e)=>{e.stopPropagation();if(await askConfirm(tr('confirmDeleteTier'),currentLanguage==='en'?`“${board.title}” will be removed from your library.`:`«${board.title}» будет удалён из библиотеки.`)){await dbDelete('boards',board.id);renderLibrary();showToast(currentLanguage==='en'?'Tier list deleted':'Тир-лист удалён');}};
-      actions.append(open,edit,remove);card.append(thumb,info,actions);card.onclick=()=>openViewer(board.id);grid.appendChild(card);
+      actions.append(open,edit,duplicate,remove);card.append(thumb,info,actions);card.onclick=()=>openViewer(board.id);grid.appendChild(card);
     }
     updateDraftNotice();
   }).catch(e=>{console.error(e);showToast(tr('readLibraryError'));});
@@ -980,6 +1062,25 @@ async function updateDraftNotice(){
     $('resumeDraft').onclick=()=>{state=deepClone(draft.state);currentBoardId=null;resetHistory();renderEditor();showView('editor');};
   }catch(e){box.style.display='none';}
 }
+async function duplicateBoard(id){
+  try{
+    const source=await dbGet('boards',id);
+    if(!source){showToast(tr('tierNotFound'));return;}
+    const copy=deepClone(source);
+    const rowIdMap=new Map();
+    copy.rows=(copy.rows||[]).map(row=>{
+      const nextId=uid();rowIdMap.set(row.id,nextId);
+      return {...row,id:nextId};
+    });
+    copy.items=(copy.items||[]).map(item=>({...item,rowId:item.rowId?(rowIdMap.get(item.rowId)||null):null}));
+    copy.id=uid();
+    copy.title=(source.title||tr('defaultTitleMissing'))+tr('copySuffix');
+    copy.createdAt=Date.now();copy.updatedAt=Date.now();
+    await dbPut('boards',copy);
+    renderLibrary();
+  }catch(error){console.error('[Tier Studio duplicate]',error);showToast(tr('saveError'));}
+}
+
 async function openEditor(id=null){
   if(id){const found=await dbGet('boards',id);if(!found){showToast(tr('tierNotFound'));return;}state=deepClone(found);delete state.preview;currentBoardId=id;}
   else {state=defaultState();currentBoardId=null;}
@@ -1013,9 +1114,11 @@ function applyBoardViewportTransform(mode){
   const shell=$('boardShell'),board=$('board');
   if(!shell||!board)return;
   clearBoardViewportTransform();
-  const boardWidth=Math.max(1,board.offsetWidth||960);
+  const boardWidth=Math.max(1,board.offsetWidth||920);
   const boardHeight=Math.max(1,board.offsetHeight||720);
-  const availableWidth=Math.max(240,window.innerWidth-24);
+  const viewportWidth=Math.max(240,window.innerWidth-24);
+  const parentWidth=shell.parentElement?shell.parentElement.clientWidth:viewportWidth;
+  const availableWidth=Math.max(240,Math.min(viewportWidth,parentWidth));
   let scale=Math.min(1,availableWidth/boardWidth);
   if(mode==='presentation-fit'){
     const availableHeight=Math.max(220,window.innerHeight-112);
@@ -1062,19 +1165,19 @@ window.addEventListener('resize',()=>requestAnimationFrame(updateBoardViewport),
 
 function renderEditor(){
   $('boardTitle').value=state.title||'';
-  $('backgroundColor').value=state.config.backgroundColor||'#1a1b16';
+  $('backgroundColorBtn').style.backgroundColor=state.config.backgroundColor||'#1a1b16';
   $('imageFit').value=state.config.imageFit||'cover';
-  $('tileSize').value=state.config.tileSize||80;$('tileSizeVal').textContent=(state.config.tileSize||80)+' px';
-  $('boardWidth').value=state.config.boardWidth||960;$('boardWidthVal').textContent=(state.config.boardWidth||960)+' px';
-  $('rowHeight').value=state.config.rowHeight||80;$('rowHeightVal').textContent=(state.config.rowHeight||80)+' px';
+  $('tileSize').value=state.config.tileSize||80;$('tileSizeNumber').value=state.config.tileSize||80;
+  $('boardWidth').value=state.config.boardWidth||920;$('boardWidthNumber').value=state.config.boardWidth||920;
+  $('rowHeight').value=state.config.rowHeight||80;$('rowHeightNumber').value=state.config.rowHeight||80;
   $('showItemLabels').checked=!!state.config.showItemLabels;
-  $('backgroundOpacity').value=state.config.backgroundOpacity??22;$('backgroundOpacityVal').textContent=(state.config.backgroundOpacity??22)+'%';
+  $('backgroundOpacity').value=state.config.backgroundOpacity??22;$('backgroundOpacityNumber').value=state.config.backgroundOpacity??22;
   $('backgroundImageActions').style.display=state.config.backgroundImage?'block':'none';
   renderBoard();renderPool();
 }
 function renderBoard(){
   const board=$('board');const bg=$('boardBg');const content=$('boardContent');
-  board.style.width=Math.min(1500,Math.max(600,state.config.boardWidth||960))+'px';
+  board.style.width=Math.min(1500,Math.max(600,state.config.boardWidth||920))+'px';
   board.style.setProperty('--row-height',(state.config.rowHeight||80)+'px');
   board.style.setProperty('--tile-size',(state.config.tileSize||80)+'px');
   board.style.setProperty('--image-fit',state.config.imageFit||'cover');
@@ -1139,30 +1242,19 @@ function renderBoard(){
     grip.addEventListener('pointercancel',finishRowPointerDrag);
 
     const editLabel=toolBtn('✎',tr('rankRenameHint'),()=>editRowLabel(row.id));
-    const colorTool=document.createElement('label');colorTool.className='color-tool';colorTool.title=tr('rankColorHint');colorTool.setAttribute('aria-label',tr('rankColorHint'));
-    const colorIcon=document.createElement('span');colorIcon.textContent='🎨';
-    const color=document.createElement('input');color.type='color';color.value=row.color;color.setAttribute('aria-label',tr('rankColorHint'));
-    color.addEventListener('click',e=>e.stopPropagation());
-    color.addEventListener('input',()=>{row.color=color.value;label.style.background=row.color;setDirty();});
-    colorTool.append(colorIcon,color);
+    const colorTool=toolBtn('🎨',tr('rankColorHint'),()=>openColorEditor(tr('rankColorHint'),row.color,value=>{
+      row.color=value;label.style.background=row.color;colorTool.style.setProperty('--row-color-preview',row.color);setDirty();
+    }));
+    colorTool.classList.add('color-tool','row-fill-color');
+    colorTool.setAttribute('aria-label',tr('rankColorHint'));
 
-    const textColorTool=document.createElement('label');
-    textColorTool.className='color-tool text-color-tool';
-    textColorTool.title=tr('rankTextColorHint');
+    const textColorTool=toolBtn('A̲',tr('rankTextColorHint'),()=>openColorEditor(tr('rankTextColorHint'),row.textColor||'#161616',value=>{
+      row.textColor=value;labelText.style.color=row.textColor;textColorTool.style.setProperty('--row-text-preview',row.textColor);setDirty();
+    }));
+    textColorTool.classList.add('color-tool','text-color-tool');
     textColorTool.setAttribute('aria-label',tr('rankTextColorHint'));
-    const textColorIcon=document.createElement('span');
-    textColorIcon.textContent='A';
-    const textColor=document.createElement('input');
-    textColor.type='color';
-    textColor.value=row.textColor||'#161616';
-    textColor.setAttribute('aria-label',tr('rankTextColorHint'));
-    textColor.addEventListener('click',e=>e.stopPropagation());
-    textColor.addEventListener('input',()=>{
-      row.textColor=textColor.value;
-      labelText.style.color=row.textColor;
-      setDirty();
-    });
-    textColorTool.append(textColorIcon,textColor);
+    colorTool.style.setProperty('--row-color-preview',row.color||'#777');
+    textColorTool.style.setProperty('--row-text-preview',row.textColor||'#161616');
 
     const bold=toolBtn('B',tr('rankBoldHint'),()=>{
       row.bold=!row.bold;
@@ -1330,7 +1422,7 @@ function openMoveItemDialog(id){
 function askConfirm(title,message){return new Promise(resolve=>{openModal(title,`<p>${esc(message)}</p>`,[{label:tr('cancel'),className:'btn',value:false},{label:tr('deleteAction'),className:'btn danger',value:true}],resolve);});}
 function askInput(title,message,value=''){return new Promise(resolve=>{openModal(title,`<p>${esc(message)}</p><input id="modalInput" type="text" value="${esc(value)}" maxlength="100" style="width:100%">`,[{label:tr('cancel'),className:'btn',value:null},{label:tr('saveAction'),className:'btn primary',value:'ok'}],result=>{if(result===null)resolve(null);else resolve($('modalInput').value);});setTimeout(()=>$('modalInput')?.focus(),40);});}
 function openModal(title,content,actions,callback){$('modalTitle').textContent=title;$('modalContent').innerHTML=content;$('modalActions').innerHTML='';actions.forEach(a=>{const b=document.createElement('button');b.className=a.className;b.textContent=a.label;b.type='button';b.onclick=()=>{if(!a.keepOpen)closeModal();callback(a.value);};$('modalActions').appendChild(b);});$('modalBackdrop').classList.add('show');}
-function closeModal(){$('modalBackdrop').classList.remove('show');$('modalBox').classList.remove('crop-modal');}
+function closeModal(){$('modalBackdrop').classList.remove('show');$('modalBox').classList.remove('crop-modal','color-modal');}
 let modalBackdropPointerArmed=false;
 $('modalBackdrop').addEventListener('pointerdown',e=>{
   modalBackdropPointerArmed=(e.target===$('modalBackdrop') && e.button===0);
@@ -1342,6 +1434,123 @@ $('modalBackdrop').addEventListener('pointerup',e=>{
 });
 $('modalBackdrop').addEventListener('pointercancel',()=>{modalBackdropPointerArmed=false;});
 $('modalBox').addEventListener('pointerdown',()=>{modalBackdropPointerArmed=false;});
+
+function normalizeRangeValue(raw,range){
+  const min=Number(range.min||0),max=Number(range.max||100),step=Number(range.step||1);
+  let value=Number(raw);
+  if(raw===''||!Number.isFinite(value))value=Number(range.value);
+  if(value<=min)return min;
+  if(value>=max)return max;
+  if(step>0)value=min+Math.round((value-min)/step)*step;
+  value=clamp(value,min,max);
+  return Number.isInteger(step)?Math.round(value):Number(value.toFixed(3));
+}
+function bindRangePair(rangeId,numberId,onValue){
+  const range=$(rangeId),number=$(numberId);
+  if(!range||!number)return;
+  const commit=raw=>{
+    const value=normalizeRangeValue(raw,range);
+    range.value=String(value);number.value=String(value);
+    onValue(value);
+  };
+  range.addEventListener('input',()=>commit(range.value));
+  number.addEventListener('change',()=>commit(number.value));
+  number.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();number.blur();}
+  });
+  number.addEventListener('blur',()=>{
+    if(number.value==='')number.value=range.value;
+  });
+}
+function hexToRgb(hex){
+  const raw=String(hex||'').trim().replace(/^#/,'');
+  const full=raw.length===3?raw.split('').map(ch=>ch+ch).join(''):raw;
+  if(!/^[0-9a-fA-F]{6}$/.test(full))return null;
+  return {r:parseInt(full.slice(0,2),16),g:parseInt(full.slice(2,4),16),b:parseInt(full.slice(4,6),16)};
+}
+function rgbToHex({r,g,b}){
+  return '#'+[r,g,b].map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function rgbToHsv(rgb){
+  const r=rgb.r/255,g=rgb.g/255,b=rgb.b/255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min;
+  let h=0;
+  if(delta){
+    if(max===r)h=60*(((g-b)/delta)%6);
+    else if(max===g)h=60*((b-r)/delta+2);
+    else h=60*((r-g)/delta+4);
+  }
+  if(h<0)h+=360;
+  return {h:Math.round(h),s:Math.round(max===0?0:delta/max*100),v:Math.round(max*100)};
+}
+function hsvToHex(h,s,v){
+  h=((Number(h)||0)%360+360)%360;s=clamp(Number(s)||0,0,100)/100;v=clamp(Number(v)||0,0,100)/100;
+  const c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
+  return rgbToHex({r:(r+m)*255,g:(g+m)*255,b:(b+m)*255});
+}
+function openColorEditor(title,initialColor,onApply){
+  const starting=hexToRgb(initialColor)||{r:22,g:22,b:22};
+  let hsv=rgbToHsv(starting);
+  let selectedHex=rgbToHex(starting);
+  const body=`
+    <div class="color-picker-editor">
+      <div class="color-picker-preview-row"><div class="color-picker-preview" id="colorPreview" aria-label="${tr('colorEditorTitle')}"></div><div class="color-picker-preview-meta"><strong id="colorHexPreview">#161616</strong><span>${tr('colorEditorTitle')}</span></div></div>
+      <div class="color-control"><div class="color-control-head"><label for="colorHue">${tr('hue')}</label><div class="range-value-control"><input class="range-number color-number" id="colorHueNumber" type="number" min="0" max="360" step="1" value="${hsv.h}" inputmode="numeric"><span>°</span></div></div><input type="range" id="colorHue" min="0" max="360" step="1" value="${hsv.h}" class="hue-range"></div>
+      <div class="color-control"><div class="color-control-head"><label for="colorSaturation">${tr('saturation')}</label><div class="range-value-control"><input class="range-number color-number" id="colorSaturationNumber" type="number" min="0" max="100" step="1" value="${hsv.s}" inputmode="numeric"><span>%</span></div></div><input type="range" id="colorSaturation" min="0" max="100" step="1" value="${hsv.s}"></div>
+      <div class="color-control"><div class="color-control-head"><label for="colorBrightness">${tr('brightness')}</label><div class="range-value-control"><input class="range-number color-number" id="colorBrightnessNumber" type="number" min="0" max="100" step="1" value="${hsv.v}" inputmode="numeric"><span>%</span></div></div><input type="range" id="colorBrightness" min="0" max="100" step="1" value="${hsv.v}"></div>
+      <div class="color-hex-row"><label for="colorHexInput">${tr('hexColor')}</label><input id="colorHexInput" type="text" maxlength="7" value="${rgbToHex(starting)}" autocomplete="off" spellcheck="false"></div>
+      <button class="btn color-eyedropper" id="colorEyedropper" type="button" style="display:none">◎ ${tr('eyedropper')}</button>
+    </div>`;
+  openModal(title,body,[
+    {label:tr('cancel'),className:'btn',value:false},
+    {label:tr('apply'),className:'btn primary',value:true}
+  ],ok=>{if(ok&&typeof onApply==='function')onApply(selectedHex);});
+  $('modalBox').classList.add('color-modal');
+
+  const ids=[['colorHue','colorHueNumber','h'],['colorSaturation','colorSaturationNumber','s'],['colorBrightness','colorBrightnessNumber','v']];
+  const preview=$('colorPreview'),hexInput=$('colorHexInput');
+  function refreshColorUi(){
+    const color=selectedHex;
+    preview.style.backgroundColor=color;
+    $('colorHexPreview').textContent=color;
+    hexInput.value=color;
+    ids.forEach(([rangeId,numberId,key])=>{$(rangeId).value=String(hsv[key]);$(numberId).value=String(hsv[key]);});
+    $('colorHue').style.setProperty('--range-gradient','linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)');
+    $('colorSaturation').style.setProperty('--range-gradient',`linear-gradient(to right,${hsvToHex(hsv.h,0,hsv.v)},${hsvToHex(hsv.h,100,hsv.v)})`);
+    $('colorBrightness').style.setProperty('--range-gradient',`linear-gradient(to right,#000000,${hsvToHex(hsv.h,hsv.s,100)})`);
+  }
+  function setFromHex(value){
+    const rgb=hexToRgb(value);
+    if(!rgb)return false;
+    selectedHex=rgbToHex(rgb);hsv=rgbToHsv(rgb);refreshColorUi();return true;
+  }
+  ids.forEach(([rangeId,numberId,key])=>{
+    const range=$(rangeId),number=$(numberId);
+    const update=raw=>{
+      let value=Number(raw);if(raw===''||!Number.isFinite(value))value=Number(range.value);
+      value=clamp(Math.round(value),Number(range.min),Number(range.max));
+      hsv[key]=value;selectedHex=hsvToHex(hsv.h,hsv.s,hsv.v);refreshColorUi();
+    };
+    range.addEventListener('input',()=>update(range.value));
+    number.addEventListener('change',()=>update(number.value));
+    number.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();number.blur();}});
+    number.addEventListener('blur',()=>{if(number.value==='')number.value=String(hsv[key]);});
+  });
+  hexInput.addEventListener('change',()=>{
+    let value=hexInput.value.trim();if(value&&!value.startsWith('#'))value='#'+value;
+    if(!setFromHex(value)){hexInput.value=selectedHex;}
+  });
+  if('EyeDropper' in window){
+    const eyedropper=$('colorEyedropper');eyedropper.style.display='inline-flex';
+    eyedropper.addEventListener('click',async()=>{
+      try{const result=await new window.EyeDropper().open();setFromHex(result.sRGBHex);}
+      catch(error){if(error?.name!=='AbortError')console.warn('[Tier Studio] Eyedropper unavailable:',error);}
+    });
+  }
+  refreshColorUi();
+}
 
 function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file);});}
 
@@ -1379,13 +1588,13 @@ async function openCropEditor(itemId){
           <button class="btn zoom-fit" type="button" id="cropZoomFit" title="${tr('fitImage')}">${tr('fitImage')}</button>
         </div>
         <div class="crop-zoom-slider">
-          <label for="cropZoom"><span>${tr('imageZoom')}</span><strong id="cropZoomValue">100%</strong></label>
-          <input type="range" id="cropZoom" min="25" max="300" step="5" value="100">
+          <div class="range-heading crop-range-heading"><label for="cropZoom">${tr('imageZoom')}</label><div class="range-value-control"><input class="range-number" type="number" id="cropZoomNumber" min="25" max="300" step="1" value="100" inputmode="numeric" aria-label="${tr('imageZoom')}"><span>%</span></div></div>
+          <input type="range" id="cropZoom" min="25" max="300" step="1" value="100">
         </div>
       </div>
       <div class="crop-size-control">
         <div>
-          <label for="cropSize"><span>${tr('selectionSize')}</span><strong id="cropSizeValue">78%</strong></label>
+          <div class="range-heading crop-range-heading"><label for="cropSize">${tr('selectionSize')}</label><div class="range-value-control"><input class="range-number" type="number" id="cropSizeNumber" min="12" max="100" step="1" value="78" inputmode="numeric" aria-label="${tr('selectionSize')}"><span>%</span></div></div>
           <input type="range" id="cropSize" min="12" max="100" step="1" value="78">
         </div>
         <div class="crop-help" id="cropDimensions">${tr('squareArea')}</div>
@@ -1452,9 +1661,10 @@ async function openCropEditor(itemId){
     selection.style.left=crop.x+'px';selection.style.top=crop.y+'px';
     selection.style.width=crop.side+'px';selection.style.height=crop.side+'px';
     const pct=Math.round(crop.side/maxSide*100);
-    $('cropSize').value=String(clamp(pct,12,100));$('cropSizeValue').textContent=pct+'%';
+    $('cropSize').value=String(clamp(pct,12,100));$('cropSizeNumber').value=String(clamp(pct,12,100));
     const sourceSize=Math.round(crop.side/(fitScale*zoomFactor));$('cropDimensions').textContent=tr('cropSelection',{size:sourceSize});
-    $('cropZoom').value=String(Math.round(zoomFactor*100));$('cropZoomValue').textContent=Math.round(zoomFactor*100)+'%';
+    const zoomPercent=clamp(Math.round(zoomFactor*100),25,300);
+    $('cropZoom').value=String(zoomPercent);$('cropZoomNumber').value=String(zoomPercent);
     $('cropZoomOut').disabled=zoomFactor<=.25;$('cropZoomIn').disabled=zoomFactor>=3;
   }
   function keepSelectionInView(){
@@ -1536,17 +1746,17 @@ async function openCropEditor(itemId){
   });
   selection.addEventListener('pointerup',()=>{dragMode=null;dragStart=null;});
   selection.addEventListener('pointercancel',()=>{dragMode=null;dragStart=null;});
-  $('cropSize').addEventListener('input',e=>{
+  bindRangePair('cropSize','cropSizeNumber',value=>{
     resetRequested=false;
     const oldSide=crop.side,centerX=crop.x+oldSide/2,centerY=crop.y+oldSide/2;
-    crop.side=maxSide*(+e.target.value/100);
+    crop.side=maxSide*(value/100);
     crop.x=clamp(centerX-crop.side/2,0,displayWidth-crop.side);
     crop.y=clamp(centerY-crop.side/2,0,displayHeight-crop.side);
     updateCropUI();
   });
-  $('cropZoom').addEventListener('input',e=>setZoom(+e.target.value/100));
-  $('cropZoomOut').addEventListener('click',()=>setZoom(zoomFactor-.15));
-  $('cropZoomIn').addEventListener('click',()=>setZoom(zoomFactor+.15));
+  bindRangePair('cropZoom','cropZoomNumber',value=>setZoom(value/100));
+  $('cropZoomOut').addEventListener('click',()=>setZoom(zoomFactor-.05));
+  $('cropZoomIn').addEventListener('click',()=>setZoom(zoomFactor+.05));
   $('cropZoomFit').addEventListener('click',()=>setZoom(1));
   $('cropRotateLeft').addEventListener('click',()=>applyOrientationChange('rotate_ccw'));
   $('cropRotateRight').addEventListener('click',()=>applyOrientationChange('rotate_cw'));
@@ -1564,21 +1774,21 @@ $('removeBackground').onclick=()=>{state.config.backgroundImage=null;$('backgrou
 
 $('boardTitle').addEventListener('input',e=>{state.title=e.target.value;const t=$('boardContent').querySelector('.board-title');if(t)t.textContent=state.title||' ';setDirty();});
 $('imageFit').onchange=e=>{state.config.imageFit=e.target.value;setDirty();renderBoard();renderPool();};
-$('tileSize').oninput=e=>{state.config.tileSize=+e.target.value;$('tileSizeVal').textContent=state.config.tileSize+' px';renderBoard();renderPool();setDirty();};
-$('boardWidth').oninput=e=>{state.config.boardWidth=+e.target.value;$('boardWidthVal').textContent=state.config.boardWidth+' px';renderBoard();setDirty();};
-$('rowHeight').oninput=e=>{state.config.rowHeight=+e.target.value;$('rowHeightVal').textContent=state.config.rowHeight+' px';renderBoard();setDirty();};
-function resetRangeSetting(inputId,value,labelId){
+bindRangePair('tileSize','tileSizeNumber',value=>{state.config.tileSize=value;renderBoard();renderPool();setDirty();});
+bindRangePair('boardWidth','boardWidthNumber',value=>{state.config.boardWidth=value;renderBoard();setDirty();});
+bindRangePair('rowHeight','rowHeightNumber',value=>{state.config.rowHeight=value;renderBoard();setDirty();});
+function resetRangeSetting(inputId,value,numberId){
   const input=$(inputId);input.value=String(value);
   input.dispatchEvent(new Event('input',{bubbles:true}));
-  if(labelId)$(labelId).textContent=value+' px';
+  if(numberId)$(numberId).value=String(value);
   showToast(tr('settingReset'));
 }
-$('resetTileSize').onclick=()=>resetRangeSetting('tileSize',80,'tileSizeVal');
-$('resetBoardWidth').onclick=()=>resetRangeSetting('boardWidth',960,'boardWidthVal');
-$('resetRowHeight').onclick=()=>resetRangeSetting('rowHeight',80,'rowHeightVal');
+$('resetTileSize').onclick=()=>resetRangeSetting('tileSize',80,'tileSizeNumber');
+$('resetBoardWidth').onclick=()=>resetRangeSetting('boardWidth',920,'boardWidthNumber');
+$('resetRowHeight').onclick=()=>resetRangeSetting('rowHeight',80,'rowHeightNumber');
 $('showItemLabels').onchange=e=>{state.config.showItemLabels=e.target.checked;setDirty();renderBoard();renderPool();};
-$('backgroundColor').oninput=e=>{state.config.backgroundColor=e.target.value;renderBoard();setDirty();};
-$('backgroundOpacity').oninput=e=>{state.config.backgroundOpacity=+e.target.value;$('backgroundOpacityVal').textContent=e.target.value+'%';renderBoard();setDirty();};
+$('backgroundColorBtn').onclick=()=>openColorEditor(tr('backgroundColor'),state.config.backgroundColor||'#1a1b16',value=>{state.config.backgroundColor=value;$('backgroundColorBtn').style.backgroundColor=value;renderBoard();setDirty();});
+bindRangePair('backgroundOpacity','backgroundOpacityNumber',value=>{state.config.backgroundOpacity=value;renderBoard();setDirty();});
 $('addTierBtn').onclick=()=>addRow();
 $('resetPlacements').onclick=async()=>{if(!await askConfirm(tr('confirmResetLayout'),tr('resetLayoutText')))return;state.items.forEach(i=>i.rowId=null);setDirty();renderBoard();renderPool();};
 
@@ -1629,7 +1839,7 @@ function getRankLabelLayout(text,maxWidth,maxHeight,bold=false){
 
 function calculateLayout(boardState){
   const cfg=boardState.config||{};
-  const width=clamp(cfg.boardWidth||960,600,2000);
+  const width=clamp(cfg.boardWidth||920,600,2000);
   const labelW=cfg.labelWidth||100;
   const tile=clamp(cfg.tileSize||80,40,240);
   const gap=0,pad=0;
